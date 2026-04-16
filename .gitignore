@@ -1,0 +1,34 @@
+# Build output
+bin/
+obj/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDEs and editors
+.vs/
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Environment and local settings
+.env
+appsettings.Development.json
+
+# Test results
+TestResults/
+
+# NuGet packages
+*.nupkg
+
+# Swap files
+*.swp

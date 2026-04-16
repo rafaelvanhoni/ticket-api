@@ -1,0 +1,38 @@
+public class Ticket
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public TicketStatus Status { get; set; } = TicketStatus.Open;
+    public TicketPriority Priority { get; set; } = TicketPriority.Low;
+    public string? AssignedTo { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+
+    public bool AtualizarStatus(TicketStatus status)
+    {
+        if (status == this.Status)
+            return false;
+
+        if (status == TicketStatus.Completed)
+            this.CompletedAt = DateTime.Now;
+        else
+            this.CompletedAt = null;
+
+        this.Status = status;
+        this.UpdatedAt = DateTime.Now;
+        return true;
+    }
+
+    public bool AtribuirResponsavel(string assignedTo)
+    {
+        if (assignedTo is null || string.Equals(this.AssignedTo, assignedTo, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        this.AssignedTo = assignedTo;
+        this.UpdatedAt = DateTime.Now;
+        return true;
+    }
+
+}
