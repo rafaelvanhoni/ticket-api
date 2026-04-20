@@ -14,22 +14,22 @@ public class TicketService
         return _repository.ObterBaseTickets();
     }
 
-    public Ticket? ObterTicketPorId(int codigo)
+    public Ticket? ObterTicketPorId(int id)
     {
         var tickets = ObterBaseTickets();
-        return tickets.FirstOrDefault(ticket => ticket.Id == codigo);
+        return tickets.FirstOrDefault(ticket => ticket.Id == id);
     }
 
-    public IEnumerable<Ticket> ObterTickets(TicketStatus? status = null, TicketPriority? prioridade = null)
+    public IEnumerable<Ticket> ObterTickets(TicketStatus? status = null, TicketPriority? priority = null)
     {
         var tickets = ObterBaseTickets();
 
-        if (status is null && prioridade is null)
+        if (status is null && priority is null)
             return tickets.OrderBy(ticket => ticket.Id);
 
         return tickets
             .Where(ticket => (status is null || status == ticket.Status) &&
-                             (prioridade is null || prioridade == ticket.Priority))
+                             (priority is null || priority == ticket.Priority))
             .OrderBy(ticket => ticket.Id);
 
     }
@@ -80,8 +80,12 @@ public class TicketService
             .Select(ticket => new TicketResumoDto(ticket.Id, ticket.Title, ticket.Status));
     }
 
-    public Ticket AdicionarTicket(CreateTicketDto dto)
+    public OperationResult<Ticket> AdicionarTicket(ITicketValidatable dto)
     {
+
+        var validation = ValidarCreateTicket(dto);
+        if (!validation.IsSuccess)
+            return validation;
 
         var ticket = new Ticket()
         {
@@ -92,9 +96,63 @@ public class TicketService
             AssignedTo = dto.AssignedTo
         };
 
+        validation.Data = ticket;
+
         _repository.AdicionarTicket(ticket);
 
-        return ticket;
+        return validation;
     }
+
+    public OperationResult<Ticket> AtualizarTicket(int id, ITicketValidatable dto)
+    {
+
+        var validation = ValidarCreateTicket(dto);
+        if (!validation.IsSuccess)
+            return validation;
+
+        var ticket = ObterTicketPorId(id);
+
+        if (ticket is null)
+        {
+            return new OperationResult<Ticket>()
+            {
+                IsSuccess = false,
+                Message = "Ticket not found."
+            };
+        }
+
+        ticket.Title = dto.Title;
+        ticket.Description = dto.Description;
+        ticket.Priority = dto.Priority;
+        ticket.AssignedTo = dto.AssignedTo;
+        ticket.UpdatedAt = DateTime.Now;
+
+        ticket.AtualizarStatus(dto.Status);
+
+        validation.Data = ticket;
+        return validation;
+    }
+
+    public OperationResult<Ticket> ValidarCreateTicket(ITicketValidatable dto)
+    {
+        var result = new OperationResult<Ticket>();
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+        {
+            result.IsSuccess = false;
+            result.Message = "Title is required.";
+            return result;
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.Description))
+        {
+            result.IsSuccess = false;
+            result.Message = "Description is required.";
+            return result;
+        }
+
+        return result;
+    }
+
 }
 

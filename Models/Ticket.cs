@@ -21,7 +21,6 @@ public class Ticket
             this.CompletedAt = null;
 
         this.Status = status;
-        this.UpdatedAt = DateTime.Now;
         return true;
     }
 

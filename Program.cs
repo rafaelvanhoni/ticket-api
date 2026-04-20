@@ -47,10 +47,33 @@ app.MapGet("/tickets", (TicketStatus? status, TicketPriority? prioridade, Ticket
 
 app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 {
-    var ticket = service.AdicionarTicket(dto);
-    return Results.Created($"/tickets/{ticket.Id}", ticket);
+
+    var resultado = service.AdicionarTicket(dto);
+
+    if (!resultado.IsSuccess)
+        return Results.BadRequest(resultado.Message);
+
+    return Results.Created($"/tickets/{resultado.Data!.Id}", resultado.Data);
+
 })
 .WithName("PostTickets")
+.WithOpenApi();
+
+app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service) =>
+{
+    var resultado = service.AtualizarTicket(id, dto);
+    if (!resultado.IsSuccess)
+    {
+        if (resultado.Data is null)
+            return Results.NotFound(resultado.Message);
+
+        return Results.BadRequest(resultado.Message);
+    }
+
+    return Results.Ok(resultado.Data);
+
+})
+.WithName("PutTicket")
 .WithOpenApi();
 
 app.Run();
