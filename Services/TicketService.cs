@@ -80,7 +80,7 @@ public class TicketService
             .Select(ticket => new TicketResumoDto(ticket.Id, ticket.Title, ticket.Status));
     }
 
-    public OperationResult<Ticket> AdicionarTicket(ITicketValidatable dto)
+    public OperationResult<Ticket> AddTicket(ITicketValidatable dto)
     {
 
         var validation = ValidarCreateTicket(dto);
@@ -98,9 +98,49 @@ public class TicketService
 
         validation.Data = ticket;
 
-        _repository.AdicionarTicket(ticket);
+        _repository.Add(ticket);
 
         return validation;
+    }
+
+    public OperationResult<Ticket> DeleteTicket(int id)
+    {
+        var ticket = ObterTicketPorId(id);
+
+        if (ticket is null)
+        {
+            return new OperationResult<Ticket>()
+            {
+                IsSuccess = false,
+                Message = "Ticket not found."
+            };
+        }
+
+        OperationResult<Ticket> resultado;
+
+        if (ticket.Status == TicketStatus.Completed)
+        {
+
+            resultado = new OperationResult<Ticket>()
+            {
+                IsSuccess = false,
+                Message = "Completed tickets cannot be deleted.",
+                Data = ticket
+            };
+
+            return resultado;
+        }
+
+        var isDeleted = _repository.Delete(ticket);
+
+        resultado = new OperationResult<Ticket>()
+        {
+            IsSuccess = isDeleted,
+            Message = isDeleted ? "" : "Ticket could not be deleted.",
+            Data = ticket
+        };
+
+        return resultado;
     }
 
     public OperationResult<Ticket> AtualizarTicket(int id, ITicketValidatable dto)

@@ -48,7 +48,7 @@ app.MapGet("/tickets", (TicketStatus? status, TicketPriority? prioridade, Ticket
 app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 {
 
-    var resultado = service.AdicionarTicket(dto);
+    var resultado = service.AddTicket(dto);
 
     if (!resultado.IsSuccess)
         return Results.BadRequest(resultado.Message);
@@ -75,5 +75,19 @@ app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service)
 })
 .WithName("PutTicket")
 .WithOpenApi();
+
+app.MapDelete("/tickets/{id}", (int id, TicketService service) =>
+{
+    var resultado = service.DeleteTicket(id);
+    if (!resultado.IsSuccess)
+    {
+        if (resultado.Data is null)
+            return Results.NotFound(resultado.Message);
+
+        return Results.BadRequest(resultado.Message);
+    }
+
+    return Results.Ok(resultado.Data);
+});
 
 app.Run();

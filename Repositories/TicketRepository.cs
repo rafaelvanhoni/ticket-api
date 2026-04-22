@@ -7,7 +7,7 @@ public class TicketRepository : ITicketRepository
     {
         _tickets = new List<Ticket>();
 
-        AdicionarTicket(new Ticket
+        Add(new Ticket
         {
             Title = "Primeiro chamado",
             Description = "Primeiro chamado criado para teste",
@@ -15,7 +15,7 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "João",
         });
 
-        AdicionarTicket(new Ticket
+        Add(new Ticket
         {
             Title = "Chamado MLA0301",
             Description = "Problema no MLA que está travando na aprovação",
@@ -23,7 +23,7 @@ public class TicketRepository : ITicketRepository
             Priority = TicketPriority.High,
             AssignedTo = "José",
         });
-        AdicionarTicket(new Ticket
+        Add(new Ticket
         {
             Title = "Zerar valores",
             Description = "Zerar valores de um registro",
@@ -32,7 +32,7 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "Rafael",
         });
 
-        AdicionarTicket(new Ticket
+        Add(new Ticket
         {
             Title = "Sistema ABC",
             Description = "Subir sistema ABC para produção",
@@ -40,9 +40,21 @@ public class TicketRepository : ITicketRepository
             Priority = TicketPriority.High,
             AssignedTo = "Rafael",
         });
+        Add(new Ticket
+        {
+            Title = "Melhorar o programa XYZ",
+            Description = "Diversas melhorias no programa XYZ",
+            Status = TicketStatus.Completed,
+            Priority = TicketPriority.High,
+            AssignedTo = "Joao"
+        });
+    }
+    public IEnumerable<Ticket> ObterBaseTickets()
+    {
+        return _tickets;
     }
 
-    public void AdicionarTicket(Ticket ticket)
+    public void Add(Ticket ticket)
     {
         ticket.Id = _ultimoId++;
         ticket.CreatedAt = DateTime.Now;
@@ -50,8 +62,9 @@ public class TicketRepository : ITicketRepository
 
     }
 
-    public IEnumerable<Ticket> ObterBaseTickets()
+    public bool Delete(Ticket ticket)
     {
-        return _tickets;
+        return _tickets.Remove(ticket);
     }
+
 }
