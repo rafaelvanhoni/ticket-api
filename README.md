@@ -46,13 +46,20 @@ Current features:
 ```text
 TicketApi/
 │
-├── DTOs/          # API contracts (input/output models)
-├── Interfaces/    # Abstractions (Repository, Validation)
-├── Models/        # Domain entities
-├── Repositories/  # Data access layer (in-memory)
-├── Services/      # Business logic and rules
-├── Shared/        # Shared utilities (OperationResult)
-└── Program.cs     # API endpoints (Minimal API)
+├── src/
+│   └── TicketApi/
+│       ├── DTOs/          # API contracts (input/output models)
+│       ├── Interfaces/    # Abstractions (Repository, Validation)
+│       ├── Models/        # Domain entities
+│       ├── Repositories/  # Data access layer (in-memory)
+│       ├── Services/      # Business logic and rules
+│       ├── Shared/        # Shared utilities (OperationResult)
+│       ├── Properties/    # App settings (launchSettings, etc)
+│       └── Program.cs     # API endpoints (Minimal API)
+│
+├── .gitignore
+├── README.md
+└── TicketApi.sln
 ```
 
 ---
