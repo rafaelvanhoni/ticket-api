@@ -9,20 +9,20 @@ public class TicketService
         _repository = repository;
     }
 
-    private IEnumerable<Ticket> ObterBaseTickets()
+    private IEnumerable<Ticket> GetBaseTickets()
     {
-        return _repository.ObterBaseTickets();
+        return _repository.GetAllTickets();
     }
 
-    public Ticket? ObterTicketPorId(int id)
+    public Ticket? GetTicketById(int id)
     {
-        var tickets = ObterBaseTickets();
+        var tickets = GetBaseTickets();
         return tickets.FirstOrDefault(ticket => ticket.Id == id);
     }
 
-    public IEnumerable<Ticket> ObterTickets(TicketStatus? status = null, TicketPriority? priority = null)
+    public IEnumerable<Ticket> GetTickets(TicketStatus? status = null, TicketPriority? priority = null)
     {
-        var tickets = ObterBaseTickets();
+        var tickets = GetBaseTickets();
 
         if (status is null && priority is null)
             return tickets.OrderBy(ticket => ticket.Id);
@@ -34,56 +34,10 @@ public class TicketService
 
     }
 
-    public int ContarEmAberto()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.Count(ticket => ticket.Status == TicketStatus.Open);
-    }
-
-    public bool ExistePrioridadeAlta()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.Any(ticket => ticket.Priority == TicketPriority.High);
-    }
-
-    public IEnumerable<Ticket> ObterOrdenadoPorDescricao()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.OrderBy(ticket => ticket.Description);
-    }
-
-    public IEnumerable<Ticket> ObterOrdenadoPorDescricaoDecrescente()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.OrderByDescending(ticket => ticket.Description);
-    }
-
-    public IEnumerable<TicketResumoDto> ObterTicketsResumidos()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.Select(ticket => new TicketResumoDto(ticket.Id, ticket.Title, ticket.Status));
-    }
-
-    public IEnumerable<TicketResumoDto> ObterTitulosResumidosEmAberto()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.Where(ticket => ticket.Status == TicketStatus.Open)
-            .OrderBy(ticket => ticket.Title)
-            .Select(ticket => new TicketResumoDto(ticket.Id, ticket.Title, ticket.Status));
-    }
-
-    public IEnumerable<TicketResumoDto> ObterTitulosResumidosOrdenados()
-    {
-        var tickets = ObterBaseTickets();
-        return tickets.OrderBy(ticket => ticket.Status)
-            .ThenBy(ticket => ticket.Title)
-            .Select(ticket => new TicketResumoDto(ticket.Id, ticket.Title, ticket.Status));
-    }
-
     public OperationResult<Ticket> AddTicket(ITicketValidatable dto)
     {
 
-        var validation = ValidarCreateTicket(dto);
+        var validation = ValidateTicket(dto);
         if (!validation.IsSuccess)
             return validation;
 
@@ -105,7 +59,7 @@ public class TicketService
 
     public OperationResult<Ticket> DeleteTicket(int id)
     {
-        var ticket = ObterTicketPorId(id);
+        var ticket = GetTicketById(id);
 
         if (ticket is null)
         {
@@ -116,41 +70,37 @@ public class TicketService
             };
         }
 
-        OperationResult<Ticket> resultado;
-
         if (ticket.Status == TicketStatus.Completed)
         {
 
-            resultado = new OperationResult<Ticket>()
+            return new OperationResult<Ticket>()
             {
                 IsSuccess = false,
                 Message = "Completed tickets cannot be deleted.",
                 Data = ticket
             };
 
-            return resultado;
         }
 
         var isDeleted = _repository.Delete(ticket);
 
-        resultado = new OperationResult<Ticket>()
+        return new OperationResult<Ticket>()
         {
             IsSuccess = isDeleted,
             Message = isDeleted ? "" : "Ticket could not be deleted.",
             Data = ticket
         };
 
-        return resultado;
     }
 
-    public OperationResult<Ticket> AtualizarTicket(int id, ITicketValidatable dto)
+    public OperationResult<Ticket> UpdateTicket(int id, ITicketValidatable dto)
     {
 
-        var validation = ValidarCreateTicket(dto);
+        var validation = ValidateTicket(dto);
         if (!validation.IsSuccess)
             return validation;
 
-        var ticket = ObterTicketPorId(id);
+        var ticket = GetTicketById(id);
 
         if (ticket is null)
         {
@@ -167,13 +117,13 @@ public class TicketService
         ticket.AssignedTo = dto.AssignedTo;
         ticket.UpdatedAt = DateTime.Now;
 
-        ticket.AtualizarStatus(dto.Status);
+        ticket.UpdateStatus(dto.Status);
 
         validation.Data = ticket;
         return validation;
     }
 
-    public OperationResult<Ticket> ValidarCreateTicket(ITicketValidatable dto)
+    public OperationResult<Ticket> ValidateTicket(ITicketValidatable dto)
     {
         var result = new OperationResult<Ticket>();
 

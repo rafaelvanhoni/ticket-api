@@ -1,7 +1,7 @@
 public class TicketRepository : ITicketRepository
 {
     private readonly List<Ticket> _tickets;
-    private int _ultimoId = 1;
+    private int _nextId = 1;
 
     public TicketRepository()
     {
@@ -49,14 +49,14 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "Joao"
         });
     }
-    public IEnumerable<Ticket> ObterBaseTickets()
+    public IEnumerable<Ticket> GetAllTickets()
     {
         return _tickets;
     }
 
     public void Add(Ticket ticket)
     {
-        ticket.Id = _ultimoId++;
+        ticket.Id = _nextId++;
         ticket.CreatedAt = DateTime.Now;
         _tickets.Add(ticket);
 

@@ -10,7 +10,7 @@ public class Ticket
     public DateTime? UpdatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
 
-    public bool AtualizarStatus(TicketStatus status)
+    public bool UpdateStatus(TicketStatus status)
     {
         if (status == this.Status)
             return false;
@@ -21,16 +21,6 @@ public class Ticket
             this.CompletedAt = null;
 
         this.Status = status;
-        return true;
-    }
-
-    public bool AtribuirResponsavel(string assignedTo)
-    {
-        if (assignedTo is null || string.Equals(this.AssignedTo, assignedTo, StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        this.AssignedTo = assignedTo;
-        this.UpdatedAt = DateTime.Now;
         return true;
     }
 

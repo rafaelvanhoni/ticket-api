@@ -1,6 +1,6 @@
 public interface ITicketRepository
 {
-    IEnumerable<Ticket> ObterBaseTickets();
+    IEnumerable<Ticket> GetAllTickets();
     void Add(Ticket ticket);
     bool Delete(Ticket ticket);
 }

@@ -1,10 +1,10 @@
 public interface ITicketValidatable
 {
 
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public TicketStatus Status { get; set; }
-    public TicketPriority Priority { get; set; }
-    public string? AssignedTo { get; set; }
+    string Title { get; set; }
+    string Description { get; set; }
+    TicketStatus Status { get; set; }
+    TicketPriority Priority { get; set; }
+    string? AssignedTo { get; set; }
 
 }

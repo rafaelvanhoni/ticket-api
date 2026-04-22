@@ -23,24 +23,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
-// ObeterTicket por Id
 app.MapGet("/tickets/{id}", (int id, TicketService service) =>
 {
-    var ticket = service.ObterTicketPorId(id);
+    var ticket = service.GetTicketById(id);
     return ticket is null ? Results.NotFound() : Results.Ok(ticket);
 
 })
-.WithName("GetTicketId")
+.WithName("GetTicketById")
 .WithOpenApi();
 
-// ObterTicket
-app.MapGet("/tickets", (TicketStatus? status, TicketPriority? prioridade, TicketService service) =>
+app.MapGet("/tickets", (TicketStatus? status, TicketPriority? priority, TicketService service) =>
 {
-    var listaTickets = service.ObterTickets(status, prioridade);
-    return Results.Ok(listaTickets);
+    return Results.Ok(service.GetTickets(status, priority));
 })
 .WithName("GetTickets")
 .WithOpenApi();
@@ -48,46 +44,48 @@ app.MapGet("/tickets", (TicketStatus? status, TicketPriority? prioridade, Ticket
 app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 {
 
-    var resultado = service.AddTicket(dto);
+    var result = service.AddTicket(dto);
 
-    if (!resultado.IsSuccess)
-        return Results.BadRequest(resultado.Message);
+    if (!result.IsSuccess)
+        return Results.BadRequest(result.Message);
 
-    return Results.Created($"/tickets/{resultado.Data!.Id}", resultado.Data);
+    return Results.Created($"/tickets/{result.Data!.Id}", result.Data);
 
 })
-.WithName("PostTickets")
+.WithName("CreateTicket")
 .WithOpenApi();
 
 app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service) =>
 {
-    var resultado = service.AtualizarTicket(id, dto);
-    if (!resultado.IsSuccess)
+    var result = service.UpdateTicket(id, dto);
+    if (!result.IsSuccess)
     {
-        if (resultado.Data is null)
-            return Results.NotFound(resultado.Message);
+        if (result.Data is null)
+            return Results.NotFound(result.Message);
 
-        return Results.BadRequest(resultado.Message);
+        return Results.BadRequest(result.Message);
     }
 
-    return Results.Ok(resultado.Data);
+    return Results.Ok(result.Data);
 
 })
-.WithName("PutTicket")
+.WithName("UpdateTicket")
 .WithOpenApi();
 
 app.MapDelete("/tickets/{id}", (int id, TicketService service) =>
 {
-    var resultado = service.DeleteTicket(id);
-    if (!resultado.IsSuccess)
+    var result = service.DeleteTicket(id);
+    if (!result.IsSuccess)
     {
-        if (resultado.Data is null)
-            return Results.NotFound(resultado.Message);
+        if (result.Data is null)
+            return Results.NotFound(result.Message);
 
-        return Results.BadRequest(resultado.Message);
+        return Results.BadRequest(result.Message);
     }
 
-    return Results.Ok(resultado.Data);
-});
+    return Results.Ok(result.Data);
+})
+.WithName("DeleteTicket")
+.WithOpenApi();
 
 app.Run();

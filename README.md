@@ -19,6 +19,8 @@ The main goal of this project is to practice modern backend concepts and build a
 - Enums for domain consistency
 - Minimal APIs
 
+Additionally, the project applies the **Result Pattern** using `OperationResult<T>`, ensuring standardized and predictable API responses.
+
 The project intentionally uses **in-memory storage** at this stage so the focus stays on architecture, domain modeling, and API behavior instead of database setup.
 
 ---
@@ -30,11 +32,12 @@ Current features:
 - Create tickets
 - Retrieve all tickets
 - Retrieve a ticket by ID
+- Update tickets
+- Delete tickets
 - Filter tickets by status
 - Filter tickets by priority
+- Business rule: completed tickets cannot be deleted
 - In-memory data storage
-
-> ⚠️ **Note:** Update (`PUT`) and Delete (`DELETE`) operations are planned for future versions.
 
 ---
 
@@ -43,12 +46,13 @@ Current features:
 ```text
 TicketApi/
 │
-├── DTOs/
-├── Interfaces/
-├── Models/
-├── Repositories/
-├── Services/
-└── Program.cs
+├── DTOs/          # API contracts (input/output models)
+├── Interfaces/    # Abstractions (Repository, Validation)
+├── Models/        # Domain entities
+├── Repositories/  # Data access layer (in-memory)
+├── Services/      # Business logic and rules
+├── Shared/        # Shared utilities (OperationResult)
+└── Program.cs     # API endpoints (Minimal API)
 ```
 
 ---
@@ -56,10 +60,11 @@ TicketApi/
 ## 🧠 Design Decisions
 
 - **Minimal API** approach for simplicity and focus on core concepts
-- **Service layer** for business logic
+- **Service layer** as the central point for business rules (not just data flow)
 - **Repository layer** to abstract data access
 - **DTOs** to separate API contracts from domain entities
 - **Enums** used for `Status` and `Priority`
+- **Result Pattern (`OperationResult<T>`)** for consistent API responses
 - **In-memory repository** to keep the project lightweight and educational
 
 This design makes it easier to evolve the project later, including replacing the in-memory repository with a real database implementation.
@@ -84,12 +89,12 @@ Retrieve all tickets.
 Optional query parameters:
 
 - `status` → `Open`, `Closed`, `Completed`
-- `prioridade` → `Low`, `Medium`, `High`
+- `priority` → `Low`, `Medium`, `High`
 
 Example:
 
 ```http
-GET /tickets?status=Open&prioridade=High
+GET /tickets?status=Open&priority=High
 ```
 
 #### Example response
@@ -166,6 +171,46 @@ Create a new ticket.
 
 ---
 
+### `PUT /tickets/{id}`
+Update an existing ticket.
+
+#### Request body
+
+```json
+{
+  "title": "Updated title",
+  "description": "Updated description",
+  "status": "completed",
+  "priority": "high",
+  "assignedTo": "Rafael"
+}
+```
+
+#### Possible responses
+
+- `200 OK` → Ticket updated successfully  
+- `404 Not Found` → Ticket does not exist  
+- `400 Bad Request` → Validation error  
+
+---
+
+### `DELETE /tickets/{id}`
+Delete a ticket.
+
+Example:
+
+```http
+DELETE /tickets/3
+```
+
+#### Possible responses
+
+- `200 OK` → Ticket deleted  
+- `404 Not Found` → Ticket not found  
+- `400 Bad Request` → Ticket is already `Completed`  
+
+---
+
 ## ⚠️ Notes
 
 - `status` and `priority` must be sent as **strings** in JSON
@@ -176,8 +221,8 @@ Create a new ticket.
 
 ## ▶️ Running the Project
 
-1. Clone the repository
-2. Go to the project folder
+1. Clone the repository  
+2. Go to the project folder  
 3. Run the application:
 
 ```bash
@@ -192,10 +237,23 @@ http://localhost:5138/swagger
 
 ---
 
+## 📈 Evolution
+
+This project went through a full **refactoring (cleanup)** phase:
+
+- Renamed all methods and variables to English  
+- Removed legacy study/test code  
+- Standardized naming conventions  
+- Improved code organization and readability  
+
+---
+
 ## 🗺 Roadmap
 
-- [ ] Implement `PUT /tickets/{id}`
-- [ ] Implement `DELETE /tickets/{id}`
+- [x] Implement `PUT /tickets/{id}`
+- [x] Implement `DELETE /tickets/{id}`
+- [x] Refactor codebase to English
+- [ ] Improve PUT semantics
 - [ ] Add stronger validation rules
 - [ ] Improve error handling
 - [ ] Add automated tests
