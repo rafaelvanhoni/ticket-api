@@ -14,8 +14,9 @@ publish/
 .vscode/
 .idea/
 
-# macOS
+# macOS / Windows
 .DS_Store
+Thumbs.db
 
 # Logs
 *.log
@@ -26,9 +27,13 @@ appsettings.Development.json
 
 # Test results
 TestResults/
+coverage/
 
 # NuGet packages
 *.nupkg
 
 # Swap files
 *.swp
+
+# Rider
+*.DotSettings.user

@@ -6,6 +6,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{98193734-C01
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketApi", "src\TicketApi\TicketApi.csproj", "{CDB63B7C-C3FC-40BF-B11D-A98A1E0B8E26}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6966B7FA-B85A-4E40-81CD-DA2C1B780B43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketApi.Tests", "tests\TicketApi.Tests\TicketApi.Tests.csproj", "{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -34,8 +38,21 @@ Global
 		{CDB63B7C-C3FC-40BF-B11D-A98A1E0B8E26}.Release|x64.Build.0 = Release|Any CPU
 		{CDB63B7C-C3FC-40BF-B11D-A98A1E0B8E26}.Release|x86.ActiveCfg = Release|Any CPU
 		{CDB63B7C-C3FC-40BF-B11D-A98A1E0B8E26}.Release|x86.Build.0 = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|x64.Build.0 = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|x64.ActiveCfg = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|x64.Build.0 = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CDB63B7C-C3FC-40BF-B11D-A98A1E0B8E26} = {98193734-C015-40D0-9617-43D2D4167BF5}
+		{8D14D27B-0F4B-4064-9C9B-AA08BAFDE253} = {6966B7FA-B85A-4E40-81CD-DA2C1B780B43}
 	EndGlobalSection
 EndGlobal
