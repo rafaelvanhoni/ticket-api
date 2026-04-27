@@ -41,6 +41,17 @@ Current features:
 
 ---
 
+## 🧪 Tests
+
+This project includes unit tests using **xUnit**, covering:
+
+- Ticket creation (success and validation)
+- Ticket update (success and validation)
+- Ticket deletion (business rules)
+- Ticket queries and filtering
+
+---
+
 ## 🧱 Project Structure
 
 ```text
@@ -252,6 +263,7 @@ This project went through a full **refactoring (cleanup)** phase:
 - Removed legacy study/test code  
 - Standardized naming conventions  
 - Improved code organization and readability  
+- Added unit tests with xUnit
 
 ---
 
@@ -263,7 +275,7 @@ This project went through a full **refactoring (cleanup)** phase:
 - [ ] Improve PUT semantics
 - [ ] Add stronger validation rules
 - [ ] Improve error handling
-- [ ] Add automated tests
+- [x] Add automated tests
 - [ ] Add logging and basic observability
 - [ ] Replace in-memory storage with a database in a future version
 
