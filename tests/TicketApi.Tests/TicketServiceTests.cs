@@ -1,12 +1,17 @@
+
 public class TicketServiceTests
 {
+    private TicketService CreateService()
+    {
+        var repository = new FakeTicketRepository();
+        return new TicketService(repository);
+    }
 
     [Fact]
     public void AddTicket_ShouldReturnSuccess_WhenValidData()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var dto = new CreateTicketDto()
         {
             Title = "Teste de Inclusao",
@@ -29,8 +34,7 @@ public class TicketServiceTests
     public void AddTicket_ShouldReturnFailure_WhenTitleIsEmpty()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var dto = new CreateTicketDto()
         {
             Title = "",
@@ -52,8 +56,7 @@ public class TicketServiceTests
     public void AddTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var dto = new CreateTicketDto()
         {
             Title = "Titulo sem descricao",
@@ -75,8 +78,7 @@ public class TicketServiceTests
     public void DeleteTicket_ShouldReturnSuccess_WhenTicketExistsAndNotCompleted()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var created = service.AddTicket(
             new CreateTicketDto()
             {
@@ -102,8 +104,7 @@ public class TicketServiceTests
     public void DeleteTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         // When
         var result = service.DeleteTicket(999);
@@ -118,8 +119,7 @@ public class TicketServiceTests
     public void DeleteTicket_ShouldReturnFailure_WhenTicketIsCompleted()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         var created = service.AddTicket(
             new CreateTicketDto()
@@ -147,8 +147,7 @@ public class TicketServiceTests
     public void GetTicketById_ShouldReturnTicket_WhenIdExists()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var created = service.AddTicket(
             new CreateTicketDto()
             {
@@ -173,8 +172,7 @@ public class TicketServiceTests
     public void GetTicketById_ShouldReturnNull_WhenIdDoesNotExist()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         // When
         var ticket = service.GetTicketById(999);
@@ -187,8 +185,7 @@ public class TicketServiceTests
     public void GetTickets_ShouldReturnOnlyOpenTickets_WhenStatusIsOpen()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         var createdOpen1 = service.AddTicket(
             new CreateTicketDto()
@@ -239,8 +236,7 @@ public class TicketServiceTests
     public void UpdateTicket_ShouldReturnSuccess_WhenIdExistsAndDataIsValid()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var created = service.AddTicket(
             new CreateTicketDto()
             {
@@ -284,8 +280,7 @@ public class TicketServiceTests
     public void UpdateTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
         var dto = new UpdateTicketDto()
         {
             Title = "Registro alterado",
@@ -308,8 +303,7 @@ public class TicketServiceTests
     public void UpdateTicket_ShouldReturnFailure_WhenTitleIsEmpty()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         var dtoAdd = new CreateTicketDto()
         {
@@ -345,8 +339,7 @@ public class TicketServiceTests
     public void UpdateTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
     {
         // Given
-        var repository = new TicketRepository();
-        var service = new TicketService(repository);
+        var service = CreateService();
 
         var dtoAdd = new CreateTicketDto()
         {
