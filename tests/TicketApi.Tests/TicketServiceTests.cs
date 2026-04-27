@@ -230,8 +230,152 @@ public class TicketServiceTests
         var tickets = service.GetTickets(status: TicketStatus.Open);
 
         // Then
+        Assert.NotEmpty(tickets);
         Assert.All(tickets, ticket => Assert.Equal(TicketStatus.Open, ticket.Status));
 
+    }
+
+    [Fact]
+    public void UpdateTicket_ShouldReturnSuccess_WhenIdExistsAndDataIsValid()
+    {
+        // Given
+        var repository = new TicketRepository();
+        var service = new TicketService(repository);
+        var created = service.AddTicket(
+            new CreateTicketDto()
+            {
+                Title = "Registro criado",
+                Description = "Novo registro criado",
+                Status = TicketStatus.Open,
+                Priority = TicketPriority.Low,
+                AssignedTo = "Teste"
+            });
+        Assert.True(created.IsSuccess);
+        Assert.NotNull(created.Data);
+
+        var dto = new UpdateTicketDto()
+        {
+            Title = "Registro alterado",
+            Description = "Registro alterado via update",
+            Status = TicketStatus.Completed,
+            Priority = TicketPriority.Medium,
+            AssignedTo = "Rafael"
+        };
+
+        // When
+        var result = service.UpdateTicket(created.Data.Id, dto);
+        var ticket = result.Data;
+
+        // Then
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(ticket);
+        Assert.Equal(created.Data.Id, ticket.Id);
+        Assert.Equal("Registro alterado", ticket.Title);
+        Assert.Equal("Registro alterado via update", ticket.Description);
+        Assert.Equal(TicketStatus.Completed, ticket.Status);
+        Assert.Equal(TicketPriority.Medium, ticket.Priority);
+        Assert.Equal("Rafael", ticket.AssignedTo);
+        Assert.NotNull(ticket.UpdatedAt);
+        Assert.NotNull(ticket.CompletedAt);
+
+    }
+
+    [Fact]
+    public void UpdateTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
+    {
+        // Given
+        var repository = new TicketRepository();
+        var service = new TicketService(repository);
+        var dto = new UpdateTicketDto()
+        {
+            Title = "Registro alterado",
+            Description = "Registro alterado via update",
+            Status = TicketStatus.Completed,
+            Priority = TicketPriority.Medium,
+            AssignedTo = "Rafael"
+        };
+
+        // When
+        var result = service.UpdateTicket(999, dto);
+
+        // Then
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Data);
+        Assert.Equal("Ticket not found.", result.Message);
+    }
+
+    [Fact]
+    public void UpdateTicket_ShouldReturnFailure_WhenTitleIsEmpty()
+    {
+        // Given
+        var repository = new TicketRepository();
+        var service = new TicketService(repository);
+
+        var dtoAdd = new CreateTicketDto()
+        {
+            Title = "Inclusao",
+            Description = "Inclusao de ticket",
+            Status = TicketStatus.Open,
+            Priority = TicketPriority.High,
+            AssignedTo = "Teste"
+        };
+
+        var created = service.AddTicket(dtoAdd);
+
+        Assert.True(created.IsSuccess);
+        Assert.NotNull(created.Data);
+
+        // When
+        var result = service.UpdateTicket(created.Data.Id, new UpdateTicketDto()
+        {
+            Title = "",
+            Description = "Alteracao de ticket",
+            Status = TicketStatus.Open,
+            Priority = TicketPriority.High,
+            AssignedTo = "Teste"
+        });
+
+        // Then
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Data);
+        Assert.Equal("Title is required.", result.Message);
+    }
+
+    [Fact]
+    public void UpdateTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
+    {
+        // Given
+        var repository = new TicketRepository();
+        var service = new TicketService(repository);
+
+        var dtoAdd = new CreateTicketDto()
+        {
+            Title = "Inclusao",
+            Description = "Inclusao de ticket",
+            Status = TicketStatus.Open,
+            Priority = TicketPriority.High,
+            AssignedTo = "Teste"
+        };
+
+        var created = service.AddTicket(dtoAdd);
+
+        Assert.True(created.IsSuccess);
+        Assert.NotNull(created.Data);
+
+        // When
+        var result = service.UpdateTicket(created.Data.Id, new UpdateTicketDto()
+        {
+            Title = "Alteracao",
+            Description = "",
+            Status = TicketStatus.Closed,
+            Priority = TicketPriority.Low,
+            AssignedTo = "Rafael"
+        });
+
+        // Then
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Data);
+        Assert.Equal("Description is required.", result.Message);
     }
 
 }
