@@ -197,6 +197,8 @@ Create a new ticket.
 ### `PUT /tickets/{id}`
 Update an existing ticket.
 
+> ⚠️ This endpoint performs a full update. All required fields must be provided in the request body.
+
 #### Request body
 
 ```json
@@ -276,7 +278,7 @@ This project went through a full **refactoring (cleanup)** phase:
 
 - [x] Implement basic CRUD operations
 - [x] Refactor codebase to English
-- [ ] Improve PUT semantics
+- [x] Improve PUT semantics
 - [x] Add stronger validation rules
 - [x] Improve error handling
 - [x] Add automated tests
