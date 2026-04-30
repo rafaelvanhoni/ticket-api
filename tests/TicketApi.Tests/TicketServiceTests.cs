@@ -1,8 +1,15 @@
+using Moq;
+
 public class TicketServiceTests
 {
     private TicketService CreateService()
     {
         var repository = new FakeTicketRepository();
+        return new TicketService(repository);
+    }
+
+    private TicketService CreateService(ITicketRepository repository)
+    {
         return new TicketService(repository);
     }
 
@@ -95,7 +102,7 @@ public class TicketServiceTests
         // Then
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.Equal(string.Empty, result.Message);
+        Assert.Null(result.Message);
     }
 
     [Fact]
@@ -324,4 +331,90 @@ public class TicketServiceTests
         Assert.Equal("Description is required.", result.Message);
     }
 
+    [Fact]
+    public void GetTicketById_ShouldReturnCorrectTicket_WhenTicketExists()
+    {
+        // Given
+        var tickets = new List<Ticket>
+        {
+          new Ticket {Id = 1, Title = "test 1"},
+          new Ticket {Id = 2, Title = "test 2"}
+        };
+
+        var repositoryMock = new Mock<ITicketRepository>();
+        repositoryMock
+            .Setup(repository => repository.GetAllTickets())
+            .Returns(tickets);
+
+        var service = new TicketService(repositoryMock.Object);
+
+        // When
+        var ticket = service.GetTicketById(2);
+
+        // Then
+        Assert.NotNull(ticket);
+        Assert.Equal(2, ticket.Id);
+        Assert.Equal("test 2", ticket.Title);
+    }
+
+    [Fact]
+    public void DeleteTicket_ShouldCallRepositoryDelete_WhenTicketExists()
+    {
+        // Given
+        var ticket = new Ticket { Id = 1, Title = "Test 1" };
+        var repositoryMock = new Mock<ITicketRepository>();
+
+        repositoryMock
+            .Setup(repository => repository.GetAllTickets())
+            .Returns(new List<Ticket> { ticket });
+        var service = new TicketService(repositoryMock.Object);
+
+        // When
+        service.DeleteTicket(1);
+
+        // Then
+        repositoryMock.Verify(r => r.Delete(It.Is<Ticket>(t => t.Id == 1)), Times.Once);
+    }
+
+    [Fact]
+    public void AddTicket_ShouldReturnFailure_WhenStatusIsInvalid()
+    {
+        // Given
+        var repositoryMock = new Mock<ITicketRepository>();
+        var service = CreateService(repositoryMock.Object);
+        var dto = CreateValidCreateTicketDto();
+        dto.Status = (TicketStatus)999;
+
+        // When
+        var result = service.AddTicket(dto);
+
+        // Then
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ResultStatus.ValidationError, result.Status);
+        Assert.Equal("Invalid ticket status.", result.Message);
+        Assert.Null(result.Data);
+
+        repositoryMock.Verify(r => r.Add(It.IsAny<Ticket>()), Times.Never);
+    }
+
+    [Fact]
+    public void AddTicket_ShouldReturnFailure_WhenPriorityIsInvalid()
+    {
+        // Given
+        var repositoryMock = new Mock<ITicketRepository>();
+        var service = CreateService(repositoryMock.Object);
+        var dto = CreateValidCreateTicketDto();
+        dto.Priority = (TicketPriority)555;
+
+        // When
+        var result = service.AddTicket(dto);
+
+        // Then
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ResultStatus.ValidationError, result.Status);
+        Assert.Equal("Invalid ticket priority.", result.Message);
+        Assert.Null(result.Data);
+
+        repositoryMock.Verify(r => r.Add(It.IsAny<Ticket>()), Times.Never);
+    }
 }

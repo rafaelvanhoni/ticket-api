@@ -38,6 +38,7 @@ Current features:
 - Filter tickets by priority
 - Business rule: completed tickets cannot be deleted
 - In-memory data storage
+- Validate ticket status and priority values
 
 ---
 
@@ -49,6 +50,8 @@ This project includes unit tests using **xUnit**, covering:
 - Ticket update (success and validation)
 - Ticket deletion (business rules)
 - Ticket queries and filtering
+- Enum validation for status and priority
+- Repository interaction verification using Moq
 
 ---
 
@@ -96,6 +99,8 @@ This design makes it easier to evolve the project later, including replacing the
 - Swagger / OpenAPI
 - System.Text.Json
 - Dependency Injection
+- xUnit
+- Moq
 
 ---
 
@@ -269,15 +274,16 @@ This project went through a full **refactoring (cleanup)** phase:
 
 ## 🗺 Roadmap
 
-- [x] Implement `PUT /tickets/{id}`
-- [x] Implement `DELETE /tickets/{id}`
+- [x] Implement basic CRUD operations
 - [x] Refactor codebase to English
 - [ ] Improve PUT semantics
-- [ ] Add stronger validation rules
-- [ ] Improve error handling
+- [x] Add stronger validation rules
+- [x] Improve error handling
 - [x] Add automated tests
 - [ ] Add logging and basic observability
 - [ ] Replace in-memory storage with a database in a future version
+- [ ] Improve enum handling in query parameters
+- [ ] Improve Swagger documentation for enum values
 
 ---
 

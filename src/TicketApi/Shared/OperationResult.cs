@@ -1,7 +1,8 @@
 public class OperationResult<T>
 {
-    public bool IsSuccess { get; set; } = true;
-    public string? Message { get; set; } = string.Empty;
+    public ResultStatus Status { get; set; } = ResultStatus.Success;
+    public bool IsSuccess => Status == ResultStatus.Success;
+    public string? Message { get; set; }
     public T? Data { get; set; }
 
 }

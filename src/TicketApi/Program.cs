@@ -29,7 +29,6 @@ app.MapGet("/tickets/{id}", (int id, TicketService service) =>
 {
     var ticket = service.GetTicketById(id);
     return ticket is null ? Results.NotFound() : Results.Ok(ticket);
-
 })
 .WithName("GetTicketById")
 .WithOpenApi();
@@ -43,14 +42,16 @@ app.MapGet("/tickets", (TicketStatus? status, TicketPriority? priority, TicketSe
 
 app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 {
-
     var result = service.AddTicket(dto);
 
-    if (!result.IsSuccess)
-        return Results.BadRequest(result.Message);
-
-    return Results.Created($"/tickets/{result.Data!.Id}", result.Data);
-
+    return result.Status switch
+    {
+        ResultStatus.Success => Results.Created($"/tickets/{result.Data!.Id}", result.Data),
+        ResultStatus.NotFound => Results.NotFound(result.Message),
+        ResultStatus.ValidationError => Results.BadRequest(result.Message),
+        ResultStatus.BusinessError => Results.BadRequest(result.Message),
+        _ => Results.BadRequest(result.Message),
+    };
 })
 .WithName("CreateTicket")
 .WithOpenApi();
@@ -58,16 +59,15 @@ app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service) =>
 {
     var result = service.UpdateTicket(id, dto);
-    if (!result.IsSuccess)
+
+    return result.Status switch
     {
-        if (result.Data is null)
-            return Results.NotFound(result.Message);
-
-        return Results.BadRequest(result.Message);
-    }
-
-    return Results.Ok(result.Data);
-
+        ResultStatus.Success => Results.Ok(result.Data),
+        ResultStatus.NotFound => Results.NotFound(result.Message),
+        ResultStatus.ValidationError => Results.BadRequest(result.Message),
+        ResultStatus.BusinessError => Results.BadRequest(result.Message),
+        _ => Results.BadRequest(result.Message),
+    };
 })
 .WithName("UpdateTicket")
 .WithOpenApi();
@@ -75,15 +75,15 @@ app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service)
 app.MapDelete("/tickets/{id}", (int id, TicketService service) =>
 {
     var result = service.DeleteTicket(id);
-    if (!result.IsSuccess)
+
+    return result.Status switch
     {
-        if (result.Data is null)
-            return Results.NotFound(result.Message);
-
-        return Results.BadRequest(result.Message);
-    }
-
-    return Results.Ok(result.Data);
+        ResultStatus.Success => Results.Ok(result.Data),
+        ResultStatus.NotFound => Results.NotFound(result.Message),
+        ResultStatus.ValidationError => Results.BadRequest(result.Message),
+        ResultStatus.BusinessError => Results.BadRequest(result.Message),
+        _ => Results.BadRequest(result.Message),
+    };
 })
 .WithName("DeleteTicket")
 .WithOpenApi();

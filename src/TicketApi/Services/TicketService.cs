@@ -65,8 +65,8 @@ public class TicketService
         {
             return new OperationResult<Ticket>()
             {
-                IsSuccess = false,
-                Message = "Ticket not found."
+                Status = ResultStatus.NotFound,
+                Message = "Ticket not found.",
             };
         }
 
@@ -75,9 +75,9 @@ public class TicketService
 
             return new OperationResult<Ticket>()
             {
-                IsSuccess = false,
+                Status = ResultStatus.BusinessError,
                 Message = "Completed tickets cannot be deleted.",
-                Data = ticket
+                Data = ticket,
             };
 
         }
@@ -86,8 +86,8 @@ public class TicketService
 
         return new OperationResult<Ticket>()
         {
-            IsSuccess = isDeleted,
-            Message = isDeleted ? "" : "Ticket could not be deleted.",
+            Status = isDeleted ? ResultStatus.Success : ResultStatus.ValidationError,
+            Message = isDeleted ? null : "Ticket could not be deleted.",
             Data = ticket
         };
 
@@ -106,7 +106,7 @@ public class TicketService
         {
             return new OperationResult<Ticket>()
             {
-                IsSuccess = false,
+                Status = ResultStatus.NotFound,
                 Message = "Ticket not found."
             };
         }
@@ -123,20 +123,34 @@ public class TicketService
         return validation;
     }
 
-    public OperationResult<Ticket> ValidateTicket(ITicketValidatable dto)
+    private OperationResult<Ticket> ValidateTicket(ITicketValidatable dto)
     {
         var result = new OperationResult<Ticket>();
 
+        if (!Enum.IsDefined(typeof(TicketStatus), dto.Status))
+        {
+            result.Status = ResultStatus.ValidationError;
+            result.Message = "Invalid ticket status.";
+            return result;
+        }
+
+        if (!Enum.IsDefined(typeof(TicketPriority), dto.Priority))
+        {
+            result.Status = ResultStatus.ValidationError;
+            result.Message = "Invalid ticket priority.";
+            return result;
+        }
+
         if (string.IsNullOrWhiteSpace(dto.Title))
         {
-            result.IsSuccess = false;
+            result.Status = ResultStatus.ValidationError;
             result.Message = "Title is required.";
             return result;
         }
 
         if (string.IsNullOrWhiteSpace(dto.Description))
         {
-            result.IsSuccess = false;
+            result.Status = ResultStatus.ValidationError;
             result.Message = "Description is required.";
             return result;
         }
