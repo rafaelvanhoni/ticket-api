@@ -282,8 +282,8 @@ This project went through a full **refactoring (cleanup)** phase:
 - [x] Add automated tests
 - [ ] Add logging and basic observability
 - [ ] Replace in-memory storage with a database in a future version
-- [ ] Improve enum handling in query parameters
-- [ ] Improve Swagger documentation for enum values
+- [x] Improve enum handling in query parameters
+- [x] Improve Swagger documentation for enum values
 
 ---
 
