@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.VisualBasic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Services.AddSingleton<ITicketRepository, TicketRepository>();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, true))
 );
+builder.Services.AddSwaggerGen(options =>
+    options.SchemaFilter<EnumSchemaFilter>());
 
 var app = builder.Build();
 
@@ -33,9 +36,36 @@ app.MapGet("/tickets/{id}", (int id, TicketService service) =>
 .WithName("GetTicketById")
 .WithOpenApi();
 
-app.MapGet("/tickets", (TicketStatus? status, TicketPriority? priority, TicketService service) =>
+app.MapGet("/tickets", (string? status, string? priority, TicketService service) =>
 {
-    return Results.Ok(service.GetTickets(status, priority));
+
+    TicketStatus? parsedStatus = null;
+    TicketPriority? parsedPriority = null;
+
+    if (!string.IsNullOrWhiteSpace(status))
+    {
+        if (!Enum.TryParse<TicketStatus>(status, true, out var statusValue) ||
+            !Enum.IsDefined(typeof(TicketStatus), statusValue))
+        {
+            return Results.BadRequest("Invalid ticket status.");
+        }
+
+        parsedStatus = statusValue;
+    }
+
+    if (!string.IsNullOrWhiteSpace(priority))
+    {
+        if (!Enum.TryParse<TicketPriority>(priority, true, out var priorityValue) ||
+            !Enum.IsDefined(typeof(TicketPriority), priorityValue))
+        {
+            return Results.BadRequest("Invalid ticket priority");
+        }
+
+        parsedPriority = priorityValue;
+    }
+
+
+    return Results.Ok(service.GetTickets(parsedStatus, parsedPriority));
 })
 .WithName("GetTickets")
 .WithOpenApi();
