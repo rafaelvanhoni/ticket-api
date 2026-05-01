@@ -16,8 +16,7 @@ public class TicketService
 
     public Ticket? GetTicketById(int id)
     {
-        var tickets = GetBaseTickets();
-        return tickets.FirstOrDefault(ticket => ticket.Id == id);
+        return _repository.GetById(id);
     }
 
     public IEnumerable<Ticket> GetTickets(TicketStatus? status = null, TicketPriority? priority = null)
@@ -120,6 +119,8 @@ public class TicketService
         ticket.UpdateStatus(dto.Status);
 
         validation.Data = ticket;
+        _repository.Update(ticket);
+
         return validation;
     }
 

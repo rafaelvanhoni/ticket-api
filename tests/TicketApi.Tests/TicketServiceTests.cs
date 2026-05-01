@@ -335,16 +335,11 @@ public class TicketServiceTests
     public void GetTicketById_ShouldReturnCorrectTicket_WhenTicketExists()
     {
         // Given
-        var tickets = new List<Ticket>
-        {
-          new Ticket {Id = 1, Title = "test 1"},
-          new Ticket {Id = 2, Title = "test 2"}
-        };
-
+        var expectedTicket = new Ticket { Id = 2, Title = "test 2" };
         var repositoryMock = new Mock<ITicketRepository>();
         repositoryMock
-            .Setup(repository => repository.GetAllTickets())
-            .Returns(tickets);
+            .Setup(repository => repository.GetById(2))
+            .Returns(expectedTicket);
 
         var service = new TicketService(repositoryMock.Object);
 
@@ -361,12 +356,12 @@ public class TicketServiceTests
     public void DeleteTicket_ShouldCallRepositoryDelete_WhenTicketExists()
     {
         // Given
-        var ticket = new Ticket { Id = 1, Title = "Test 1" };
+        var expectedTicket = new Ticket { Id = 1, Title = "Test 1" };
         var repositoryMock = new Mock<ITicketRepository>();
 
         repositoryMock
-            .Setup(repository => repository.GetAllTickets())
-            .Returns(new List<Ticket> { ticket });
+            .Setup(repository => repository.GetById(1))
+            .Returns(expectedTicket);
         var service = new TicketService(repositoryMock.Object);
 
         // When

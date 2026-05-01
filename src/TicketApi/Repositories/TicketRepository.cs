@@ -49,17 +49,14 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "Joao"
         });
     }
-    public IEnumerable<Ticket> GetAllTickets()
-    {
-        return _tickets;
-    }
+    public IEnumerable<Ticket> GetAllTickets() => _tickets;
+    public Ticket? GetById(int id) => _tickets.FirstOrDefault(ticket => ticket.Id == id);
 
     public void Add(Ticket ticket)
     {
         ticket.Id = _nextId++;
         ticket.CreatedAt = DateTime.Now;
         _tickets.Add(ticket);
-
     }
 
     public bool Delete(Ticket ticket)
@@ -67,4 +64,8 @@ public class TicketRepository : ITicketRepository
         return _tickets.Remove(ticket);
     }
 
+    public void Update(Ticket ticket)
+    {
+        //
+    }
 }

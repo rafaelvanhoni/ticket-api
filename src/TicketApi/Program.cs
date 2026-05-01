@@ -1,16 +1,19 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.VisualBasic;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<TicketDbContext>(options =>
+    options.UseSqlite("Data Source = Data/tickets.db"));
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<TicketService>();
-builder.Services.AddSingleton<ITicketRepository, TicketRepository>();
-
+//builder.Services.AddSingleton<TicketService>();
+//builder.Services.AddSingleton<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<ITicketRepository, EfTicketRepository>();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, true))
 );

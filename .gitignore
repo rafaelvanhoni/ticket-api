@@ -37,3 +37,12 @@ coverage/
 
 # Rider
 *.DotSettings.user
+
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# .NET specific logs
+logs/
+*.log.*
