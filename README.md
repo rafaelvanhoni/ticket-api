@@ -2,7 +2,7 @@
 
 > 🚧 **Status:** In Development
 
-A simple REST API for managing tickets, built with **ASP.NET Core Minimal APIs**.
+A simple REST API for managing tickets, built with **ASP.NET Core Minimal APIs** and **Entity Framework Core (SQLite)**.
 
 This project is part of my transition from legacy ERP development (**Progress 4GL / Datasul**) to modern backend development using **C#** and **.NET**.
 
@@ -16,12 +16,15 @@ The main goal of this project is to practice modern backend concepts and build a
 - Separation of Concerns
 - DTOs
 - Repository Pattern
-- Enums for domain consistency
+- Entity Framework Core
+- Database migrations
 - Minimal APIs
 
 Additionally, the project applies the **Result Pattern** using `OperationResult<T>`, ensuring standardized and predictable API responses.
 
-The project intentionally uses **in-memory storage** at this stage so the focus stays on architecture, domain modeling, and API behavior instead of database setup.
+The project initially used in-memory storage to focus on architecture and API design.
+
+It has since evolved to use **Entity Framework Core with SQLite**, enabling persistent data storage and database versioning through migrations.
 
 ---
 
@@ -37,7 +40,8 @@ Current features:
 - Filter tickets by status
 - Filter tickets by priority
 - Business rule: completed tickets cannot be deleted
-- In-memory data storage
+- Persistent data storage using SQLite
+- Database migrations with Entity Framework Core
 - Validate ticket status and priority values
 
 ---
@@ -62,14 +66,18 @@ TicketApi/
 │
 ├── src/
 │   └── TicketApi/
+│       ├── Data/          # DbContext and EF Core migrations
 │       ├── DTOs/          # API contracts (input/output models)
 │       ├── Interfaces/    # Abstractions (Repository, Validation)
 │       ├── Models/        # Domain entities
-│       ├── Repositories/  # Data access layer (in-memory)
+│       ├── Repositories/  # Data access layer (EF + in-memory)
 │       ├── Services/      # Business logic and rules
 │       ├── Shared/        # Shared utilities (OperationResult)
 │       ├── Properties/    # App settings (launchSettings, etc)
 │       └── Program.cs     # API endpoints (Minimal API)
+│
+├── tests/
+│   └── TicketApi.Tests/
 │
 ├── .gitignore
 ├── README.md
@@ -80,15 +88,17 @@ TicketApi/
 
 ## 🧠 Design Decisions
 
-- **Minimal API** approach for simplicity and focus on core concepts
-- **Service layer** as the central point for business rules (not just data flow)
-- **Repository layer** to abstract data access
-- **DTOs** to separate API contracts from domain entities
-- **Enums** used for `Status` and `Priority`
-- **Result Pattern (`OperationResult<T>`)** for consistent API responses
-- **In-memory repository** to keep the project lightweight and educational
+- **Minimal API** approach for simplicity and focus on core concepts  
+- **Service layer** as the central point for business rules (not just data flow)  
+- **Repository layer** to abstract data access  
+- **Entity Framework Core** for persistence  
+- **SQLite** for lightweight local database  
+- **DTOs** to separate API contracts from domain entities  
+- **Enums** used for `Status` and `Priority`  
+- **Result Pattern (`OperationResult<T>`)** for consistent API responses  
+- **Dual repository strategy (in-memory + EF Core)** for learning, testing, and flexibility  
 
-This design makes it easier to evolve the project later, including replacing the in-memory repository with a real database implementation.
+This design makes it easier to evolve the project later, including replacing the persistence layer if needed.
 
 ---
 
@@ -96,6 +106,8 @@ This design makes it easier to evolve the project later, including replacing the
 
 - .NET 8
 - ASP.NET Core Minimal APIs
+- Entity Framework Core
+- SQLite
 - Swagger / OpenAPI
 - System.Text.Json
 - Dependency Injection
@@ -239,8 +251,10 @@ DELETE /tickets/3
 ## ⚠️ Notes
 
 - `status` and `priority` must be sent as **strings** in JSON
-- Enum values are currently handled by the API as domain-constrained values
-- No database configuration is required to run this project
+- Enum values are handled by the API as domain-constrained values
+- SQLite database files are ignored by Git (`*.db`, `*.db-shm`, `*.db-wal`)  
+- Database schema is managed through Entity Framework Core migrations  
+- The project uses a local SQLite database (no external setup required)  
 
 ---
 
@@ -248,13 +262,26 @@ DELETE /tickets/3
 
 1. Clone the repository  
 2. Go to the project folder  
-3. Run the application:
+
+3. Restore dependencies:
+
+```bash
+dotnet restore
+```
+
+4. Apply database migrations (requires EF CLI):
+
+```bash
+dotnet ef database update
+```
+
+5. Run the application:
 
 ```bash
 dotnet run
 ```
 
-4. Open Swagger UI:
+6. Open Swagger UI:
 
 ```text
 http://localhost:5138/swagger
@@ -264,13 +291,17 @@ http://localhost:5138/swagger
 
 ## 📈 Evolution
 
-This project went through a full **refactoring (cleanup)** phase:
+This project went through a full evolution process:
 
-- Renamed all methods and variables to English  
-- Removed legacy study/test code  
-- Standardized naming conventions  
-- Improved code organization and readability  
-- Added unit tests with xUnit
+- Initial CRUD implementation using in-memory storage  
+- Refactoring focused on clean code and naming standardization (Portuguese → English)  
+- Introduction of DTOs and separation of concerns  
+- Implementation of Result Pattern (`OperationResult<T>`)  
+- Addition of unit tests using xUnit and Moq  
+- Introduction of repository abstraction with `ITicketRepository`  
+- Implementation of dual repository strategy (in-memory + EF Core)  
+- Migration from in-memory storage to SQLite persistence  
+- Introduction of Entity Framework Core and database migrations  
 
 ---
 
@@ -282,10 +313,17 @@ This project went through a full **refactoring (cleanup)** phase:
 - [x] Add stronger validation rules
 - [x] Improve error handling
 - [x] Add automated tests
-- [ ] Add logging and basic observability
-- [ ] Replace in-memory storage with a database in a future version
-- [x] Improve enum handling in query parameters
-- [x] Improve Swagger documentation for enum values
+- [x] Replace in-memory storage with SQLite database
+- [x] Introduce Entity Framework Core and migrations
+- [x] Improve enum handling in query parameters  
+- [x] Improve Swagger documentation for enum values  
+
+### Next steps
+
+- [ ] Add logging and basic observability  
+- [ ] Introduce async/await in repositories and services  
+- [ ] Improve API response standardization  
+- [ ] Add authentication and authorization  
 
 ---
 
