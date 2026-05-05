@@ -31,15 +31,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/tickets/{id}", (int id, TicketService service) =>
+app.MapGet("/tickets/{id}", async (int id, TicketService service) =>
 {
-    var ticket = service.GetTicketById(id);
+    var ticket = await service.GetTicketByIdAsync(id);
     return ticket is null ? Results.NotFound() : Results.Ok(ticket);
 })
 .WithName("GetTicketById")
 .WithOpenApi();
 
-app.MapGet("/tickets", (string? status, string? priority, TicketService service) =>
+app.MapGet("/tickets", async (string? status, string? priority, TicketService service) =>
 {
 
     TicketStatus? parsedStatus = null;
@@ -68,14 +68,14 @@ app.MapGet("/tickets", (string? status, string? priority, TicketService service)
     }
 
 
-    return Results.Ok(service.GetTickets(parsedStatus, parsedPriority));
+    return Results.Ok(await service.GetTicketsAsync(parsedStatus, parsedPriority));
 })
 .WithName("GetTickets")
 .WithOpenApi();
 
-app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
+app.MapPost("/tickets", async (CreateTicketDto dto, TicketService service) =>
 {
-    var result = service.AddTicket(dto);
+    var result = await service.AddTicketAsync(dto);
 
     return result.Status switch
     {
@@ -89,9 +89,9 @@ app.MapPost("/tickets", (CreateTicketDto dto, TicketService service) =>
 .WithName("CreateTicket")
 .WithOpenApi();
 
-app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service) =>
+app.MapPut("/tickets/{id}", async (int id, UpdateTicketDto dto, TicketService service) =>
 {
-    var result = service.UpdateTicket(id, dto);
+    var result = await service.UpdateTicketAsync(id, dto);
 
     return result.Status switch
     {
@@ -105,9 +105,9 @@ app.MapPut("/tickets/{id}", (int id, UpdateTicketDto dto, TicketService service)
 .WithName("UpdateTicket")
 .WithOpenApi();
 
-app.MapDelete("/tickets/{id}", (int id, TicketService service) =>
+app.MapDelete("/tickets/{id}", async (int id, TicketService service) =>
 {
-    var result = service.DeleteTicket(id);
+    var result = await service.DeleteTicketAsync(id);
 
     return result.Status switch
     {

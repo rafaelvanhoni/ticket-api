@@ -4,23 +4,28 @@ public class FakeTicketRepository : ITicketRepository
     private readonly List<Ticket> _tickets = new();
     private int _nextId = 1;
 
-    public IEnumerable<Ticket> GetAllTickets() => _tickets.ToList();
-    public Ticket? GetById(int id) => _tickets.FirstOrDefault(ticket => ticket.Id == id);
+    public Task<IEnumerable<Ticket>> GetAllTicketsAsync()
+    {
+        return Task.FromResult(_tickets.AsEnumerable());
+    }
 
-    public void Add(Ticket ticket)
+    public Task<Ticket?> GetByIdAsync(int id) => Task.FromResult(_tickets.FirstOrDefault(ticket => ticket.Id == id));
+
+    public Task AddAsync(Ticket ticket)
     {
         ticket.Id = _nextId++;
         ticket.CreatedAt = DateTime.Now;
         _tickets.Add(ticket);
+        return Task.CompletedTask;
     }
 
-    public bool Delete(Ticket ticket)
+    public Task<bool> DeleteAsync(Ticket ticket)
     {
-        return _tickets.Remove(ticket);
+        return Task.FromResult(_tickets.Remove(ticket));
     }
 
-    public void Update(Ticket ticket)
+    public Task UpdateAsync(Ticket ticket)
     {
-        //
+        return Task.CompletedTask;
     }
 }

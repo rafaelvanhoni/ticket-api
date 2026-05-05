@@ -1,4 +1,3 @@
-
 public class TicketService
 {
 
@@ -9,31 +8,31 @@ public class TicketService
         _repository = repository;
     }
 
-    private async Task<IEnumerable<Ticket>> GetBaseTicketsAsync()
+    private Task<IEnumerable<Ticket>> GetBaseTicketsAsync()
     {
-        return await _repository.GetAllTicketsAsync();
+        return _repository.GetAllTicketsAsync();
     }
 
-    public async Task<Ticket?> GetTicketByIdAsync(int id)
+    public Task<Ticket?> GetTicketByIdAsync(int id)
     {
-        return await _repository.GetByIdAsync(id);
+        return _repository.GetByIdAsync(id);
     }
 
     public async Task<IEnumerable<Ticket>> GetTicketsAsync(TicketStatus? status = null, TicketPriority? priority = null)
     {
-        var tickets = Task.FromResult(GetBaseTicketsAsync());
+        var tickets = await GetBaseTicketsAsync();
 
         if (status is null && priority is null)
             return tickets.OrderBy(ticket => ticket.Id);
 
-        return await tickets
+        return tickets
             .Where(ticket => (status is null || status == ticket.Status) &&
                              (priority is null || priority == ticket.Priority))
             .OrderBy(ticket => ticket.Id);
 
     }
 
-    public OperationResult<Ticket> AddTicket(ITicketValidatable dto)
+    public async Task<OperationResult<Ticket>> AddTicketAsync(ITicketValidatable dto)
     {
 
         var validation = ValidateTicket(dto);
@@ -51,14 +50,14 @@ public class TicketService
 
         validation.Data = ticket;
 
-        _repository.Add(ticket);
+        await _repository.AddAsync(ticket);
 
         return validation;
     }
 
-    public OperationResult<Ticket> DeleteTicket(int id)
+    public async Task<OperationResult<Ticket>> DeleteTicketAsync(int id)
     {
-        var ticket = GetTicketById(id);
+        var ticket = await GetTicketByIdAsync(id);
 
         if (ticket is null)
         {
@@ -81,7 +80,7 @@ public class TicketService
 
         }
 
-        var isDeleted = _repository.Delete(ticket);
+        var isDeleted = await _repository.DeleteAsync(ticket);
 
         return new OperationResult<Ticket>()
         {
@@ -92,14 +91,14 @@ public class TicketService
 
     }
 
-    public OperationResult<Ticket> UpdateTicket(int id, ITicketValidatable dto)
+    public async Task<OperationResult<Ticket>> UpdateTicketAsync(int id, ITicketValidatable dto)
     {
 
         var validation = ValidateTicket(dto);
         if (!validation.IsSuccess)
             return validation;
 
-        var ticket = GetTicketById(id);
+        var ticket = await GetTicketByIdAsync(id);
 
         if (ticket is null)
         {
@@ -119,7 +118,7 @@ public class TicketService
         ticket.UpdateStatus(dto.Status);
 
         validation.Data = ticket;
-        _repository.Update(ticket);
+        await _repository.UpdateAsync(ticket);
 
         return validation;
     }
