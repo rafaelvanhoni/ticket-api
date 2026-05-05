@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Moq;
 
 public class TicketServiceTests
@@ -38,14 +39,14 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void AddTicket_ShouldReturnSuccess_WhenValidData()
+    public async Task AddTicket_ShouldReturnSuccess_WhenValidData()
     {
         // Given
         var service = CreateService();
         var dto = CreateValidCreateTicketDto();
 
         // When
-        var result = service.AddTicket(dto);
+        var result = await service.AddTicketAsync(dto);
 
         // Then
         Assert.True(result.IsSuccess);
@@ -54,7 +55,7 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void AddTicket_ShouldReturnFailure_WhenTitleIsEmpty()
+    public async Task AddTicket_ShouldReturnFailure_WhenTitleIsEmpty()
     {
         // Given
         var service = CreateService();
@@ -62,7 +63,7 @@ public class TicketServiceTests
         dto.Title = "";
 
         // When
-        var result = service.AddTicket(dto);
+        var result = await service.AddTicketAsync(dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -71,7 +72,7 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void AddTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
+    public async Task AddTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
     {
         // Given
         var service = CreateService();
@@ -79,7 +80,7 @@ public class TicketServiceTests
         dto.Description = "";
 
         // When
-        var result = service.AddTicket(dto);
+        var result = await service.AddTicketAsync(dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -88,16 +89,16 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void DeleteTicket_ShouldReturnSuccess_WhenTicketExistsAndNotCompleted()
+    public async Task DeleteTicket_ShouldReturnSuccess_WhenTicketExistsAndNotCompleted()
     {
         // Given
         var service = CreateService();
-        var created = service.AddTicket(CreateValidCreateTicketDto());
+        var created = await service.AddTicketAsync(CreateValidCreateTicketDto());
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
         // When
-        var result = service.DeleteTicket(created.Data!.Id);
+        var result = await service.DeleteTicketAsync(created.Data!.Id);
 
         // Then
         Assert.True(result.IsSuccess);
@@ -106,13 +107,13 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void DeleteTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
+    public async Task DeleteTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
     {
         // Given
         var service = CreateService();
 
         // When
-        var result = service.DeleteTicket(999);
+        var result = await service.DeleteTicketAsync(999);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -121,7 +122,7 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void DeleteTicket_ShouldReturnFailure_WhenTicketIsCompleted()
+    public async Task DeleteTicket_ShouldReturnFailure_WhenTicketIsCompleted()
     {
         // Given
         var service = CreateService();
@@ -129,12 +130,12 @@ public class TicketServiceTests
         var dto = CreateValidCreateTicketDto();
         dto.Status = TicketStatus.Completed;
 
-        var created = service.AddTicket(dto);
+        var created = await service.AddTicketAsync(dto);
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
         // When
-        var result = service.DeleteTicket(created.Data!.Id);
+        var result = await service.DeleteTicketAsync(created.Data!.Id);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -143,18 +144,18 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void GetTicketById_ShouldReturnTicket_WhenIdExists()
+    public async Task GetTicketById_ShouldReturnTicket_WhenIdExists()
     {
         // Given
         var service = CreateService();
         var dto = CreateValidCreateTicketDto();
 
-        var created = service.AddTicket(dto);
+        var created = await service.AddTicketAsync(dto);
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
         // When
-        var ticket = service.GetTicketById(created.Data!.Id);
+        var ticket = await service.GetTicketByIdAsync(created.Data!.Id);
 
         // Then
         Assert.NotNull(ticket);
@@ -162,20 +163,20 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void GetTicketById_ShouldReturnNull_WhenIdDoesNotExist()
+    public async Task GetTicketById_ShouldReturnNull_WhenIdDoesNotExist()
     {
         // Given
         var service = CreateService();
 
         // When
-        var ticket = service.GetTicketById(999);
+        var ticket = await service.GetTicketByIdAsync(999);
 
         // Then
         Assert.Null(ticket);
     }
 
     [Fact]
-    public void GetTickets_ShouldReturnOnlyOpenTickets_WhenStatusIsOpen()
+    public async Task GetTickets_ShouldReturnOnlyOpenTickets_WhenStatusIsOpen()
     {
         // Given
         var service = CreateService();
@@ -183,26 +184,26 @@ public class TicketServiceTests
         var dto1 = CreateValidCreateTicketDto();
         dto1.Title = "Ticket 1";
         dto1.Status = TicketStatus.Open;
-        var createdOpen1 = service.AddTicket(dto1);
+        var createdOpen1 = await service.AddTicketAsync(dto1);
         Assert.True(createdOpen1.IsSuccess);
         Assert.NotNull(createdOpen1.Data);
 
         var dto2 = CreateValidCreateTicketDto();
         dto2.Title = "Ticket 2";
         dto2.Status = TicketStatus.Open;
-        var createdOpen2 = service.AddTicket(dto2);
+        var createdOpen2 = await service.AddTicketAsync(dto2);
         Assert.True(createdOpen2.IsSuccess);
         Assert.NotNull(createdOpen2.Data);
 
         var dto3 = CreateValidCreateTicketDto();
         dto3.Title = "Ticket 3";
         dto3.Status = TicketStatus.Closed;
-        var createdClosed = service.AddTicket(dto3);
+        var createdClosed = await service.AddTicketAsync(dto3);
         Assert.True(createdClosed.IsSuccess);
         Assert.NotNull(createdClosed.Data);
 
         // When
-        var tickets = service.GetTickets(status: TicketStatus.Open);
+        var tickets = await service.GetTicketsAsync(status: TicketStatus.Open);
 
         // Then
         Assert.NotEmpty(tickets);
@@ -210,18 +211,18 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void UpdateTicket_ShouldReturnSuccess_WhenIdExistsAndDataIsValid()
+    public async Task UpdateTicket_ShouldReturnSuccess_WhenIdExistsAndDataIsValid()
     {
         // Given
         var service = CreateService();
-        var created = service.AddTicket(CreateValidCreateTicketDto());
+        var created = await service.AddTicketAsync(CreateValidCreateTicketDto());
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
         var dto = CreateValidUpdateTicketDto();
 
         // When
-        var result = service.UpdateTicket(created.Data.Id, dto);
+        var result = await service.UpdateTicketAsync(created.Data.Id, dto);
         var ticket = result.Data;
 
         // Then
@@ -238,11 +239,11 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void UpdateTicket_ShouldSetCompletedAt_WhenStatusIsCompleted()
+    public async Task UpdateTicket_ShouldSetCompletedAt_WhenStatusIsCompleted()
     {
         // Given
         var service = CreateService();
-        var created = service.AddTicket(CreateValidCreateTicketDto());
+        var created = await service.AddTicketAsync(CreateValidCreateTicketDto());
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
@@ -250,7 +251,7 @@ public class TicketServiceTests
         dto.Status = TicketStatus.Completed;
 
         // When
-        var result = service.UpdateTicket(created.Data.Id, dto);
+        var result = await service.UpdateTicketAsync(created.Data.Id, dto);
         var ticket = result.Data;
 
         // Then
@@ -267,7 +268,7 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void UpdateTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
+    public async Task UpdateTicket_ShouldReturnFailure_WhenTicketDoesNotExist()
     {
         // Given
         var service = CreateService();
@@ -281,7 +282,7 @@ public class TicketServiceTests
         };
 
         // When
-        var result = service.UpdateTicket(999, dto);
+        var result = await service.UpdateTicketAsync(999, dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -290,11 +291,11 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void UpdateTicket_ShouldReturnFailure_WhenTitleIsEmpty()
+    public async Task UpdateTicket_ShouldReturnFailure_WhenTitleIsEmpty()
     {
         // Given
         var service = CreateService();
-        var created = service.AddTicket(CreateValidCreateTicketDto());
+        var created = await service.AddTicketAsync(CreateValidCreateTicketDto());
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
@@ -302,7 +303,7 @@ public class TicketServiceTests
         dto.Title = "";
 
         // When
-        var result = service.UpdateTicket(created.Data.Id, dto);
+        var result = await service.UpdateTicketAsync(created.Data.Id, dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -311,11 +312,11 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void UpdateTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
+    public async Task UpdateTicket_ShouldReturnFailure_WhenDescriptionIsEmpty()
     {
         // Given
         var service = CreateService();
-        var created = service.AddTicket(CreateValidCreateTicketDto());
+        var created = await service.AddTicketAsync(CreateValidCreateTicketDto());
         Assert.True(created.IsSuccess);
         Assert.NotNull(created.Data);
 
@@ -323,7 +324,7 @@ public class TicketServiceTests
         dto.Description = "";
 
         // When
-        var result = service.UpdateTicket(created.Data.Id, dto);
+        var result = await service.UpdateTicketAsync(created.Data.Id, dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -332,19 +333,19 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void GetTicketById_ShouldReturnCorrectTicket_WhenTicketExists()
+    public async Task GetTicketById_ShouldReturnCorrectTicket_WhenTicketExists()
     {
         // Given
         var expectedTicket = new Ticket { Id = 2, Title = "test 2" };
         var repositoryMock = new Mock<ITicketRepository>();
         repositoryMock
-            .Setup(repository => repository.GetById(2))
-            .Returns(expectedTicket);
+            .Setup(repository => repository.GetByIdAsync(2))
+            .ReturnsAsync(expectedTicket);
 
         var service = new TicketService(repositoryMock.Object);
 
         // When
-        var ticket = service.GetTicketById(2);
+        var ticket = await service.GetTicketByIdAsync(2);
 
         // Then
         Assert.NotNull(ticket);
@@ -353,26 +354,26 @@ public class TicketServiceTests
     }
 
     [Fact]
-    public void DeleteTicket_ShouldCallRepositoryDelete_WhenTicketExists()
+    public async Task DeleteTicket_ShouldCallRepositoryDelete_WhenTicketExists()
     {
         // Given
         var expectedTicket = new Ticket { Id = 1, Title = "Test 1" };
         var repositoryMock = new Mock<ITicketRepository>();
 
         repositoryMock
-            .Setup(repository => repository.GetById(1))
-            .Returns(expectedTicket);
+            .Setup(repository => repository.GetByIdAsync(1))
+            .ReturnsAsync(expectedTicket);
         var service = new TicketService(repositoryMock.Object);
 
         // When
-        service.DeleteTicket(1);
+        await service.DeleteTicketAsync(1);
 
         // Then
-        repositoryMock.Verify(r => r.Delete(It.Is<Ticket>(t => t.Id == 1)), Times.Once);
+        repositoryMock.Verify(r => r.DeleteAsync(It.Is<Ticket>(t => t.Id == 1)), Times.Once);
     }
 
     [Fact]
-    public void AddTicket_ShouldReturnFailure_WhenStatusIsInvalid()
+    public async Task AddTicket_ShouldReturnFailure_WhenStatusIsInvalid()
     {
         // Given
         var repositoryMock = new Mock<ITicketRepository>();
@@ -381,7 +382,7 @@ public class TicketServiceTests
         dto.Status = (TicketStatus)999;
 
         // When
-        var result = service.AddTicket(dto);
+        var result = await service.AddTicketAsync(dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -389,11 +390,11 @@ public class TicketServiceTests
         Assert.Equal("Invalid ticket status.", result.Message);
         Assert.Null(result.Data);
 
-        repositoryMock.Verify(r => r.Add(It.IsAny<Ticket>()), Times.Never);
+        repositoryMock.Verify(r => r.AddAsync(It.IsAny<Ticket>()), Times.Never);
     }
 
     [Fact]
-    public void AddTicket_ShouldReturnFailure_WhenPriorityIsInvalid()
+    public async Task AddTicket_ShouldReturnFailure_WhenPriorityIsInvalid()
     {
         // Given
         var repositoryMock = new Mock<ITicketRepository>();
@@ -402,7 +403,7 @@ public class TicketServiceTests
         dto.Priority = (TicketPriority)555;
 
         // When
-        var result = service.AddTicket(dto);
+        var result = await service.AddTicketAsync(dto);
 
         // Then
         Assert.False(result.IsSuccess);
@@ -410,6 +411,6 @@ public class TicketServiceTests
         Assert.Equal("Invalid ticket priority.", result.Message);
         Assert.Null(result.Data);
 
-        repositoryMock.Verify(r => r.Add(It.IsAny<Ticket>()), Times.Never);
+        repositoryMock.Verify(r => r.AddAsync(It.IsAny<Ticket>()), Times.Never);
     }
 }
