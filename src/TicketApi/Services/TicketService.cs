@@ -9,24 +9,24 @@ public class TicketService
         _repository = repository;
     }
 
-    private IEnumerable<Ticket> GetBaseTickets()
+    private async Task<IEnumerable<Ticket>> GetBaseTicketsAsync()
     {
-        return _repository.GetAllTickets();
+        return await _repository.GetAllTicketsAsync();
     }
 
-    public Ticket? GetTicketById(int id)
+    public async Task<Ticket?> GetTicketByIdAsync(int id)
     {
-        return _repository.GetById(id);
+        return await _repository.GetByIdAsync(id);
     }
 
-    public IEnumerable<Ticket> GetTickets(TicketStatus? status = null, TicketPriority? priority = null)
+    public async Task<IEnumerable<Ticket>> GetTicketsAsync(TicketStatus? status = null, TicketPriority? priority = null)
     {
-        var tickets = GetBaseTickets();
+        var tickets = Task.FromResult(GetBaseTicketsAsync());
 
         if (status is null && priority is null)
             return tickets.OrderBy(ticket => ticket.Id);
 
-        return tickets
+        return await tickets
             .Where(ticket => (status is null || status == ticket.Status) &&
                              (priority is null || priority == ticket.Priority))
             .OrderBy(ticket => ticket.Id);

@@ -17,7 +17,7 @@ public class EfTicketRepository : ITicketRepository
 
     public async Task<Ticket?> GetByIdAsync(int id)
     {
-        return await _context.Tickets.FirstOrDefaultAsync(ticket => ticket.Id == id);
+        return await _context.Tickets.FindAsync(id);
     }
 
     public async Task AddAsync(Ticket ticket)
