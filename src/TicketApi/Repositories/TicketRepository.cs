@@ -7,7 +7,7 @@ public class TicketRepository : ITicketRepository
     {
         _tickets = new List<Ticket>();
 
-        Add(new Ticket
+        AddAsync(new Ticket
         {
             Title = "Primeiro chamado",
             Description = "Primeiro chamado criado para teste",
@@ -15,7 +15,7 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "João",
         });
 
-        Add(new Ticket
+        AddAsync(new Ticket
         {
             Title = "Chamado MLA0301",
             Description = "Problema no MLA que está travando na aprovação",
@@ -23,7 +23,7 @@ public class TicketRepository : ITicketRepository
             Priority = TicketPriority.High,
             AssignedTo = "José",
         });
-        Add(new Ticket
+        AddAsync(new Ticket
         {
             Title = "Zerar valores",
             Description = "Zerar valores de um registro",
@@ -32,7 +32,7 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "Rafael",
         });
 
-        Add(new Ticket
+        AddAsync(new Ticket
         {
             Title = "Sistema ABC",
             Description = "Subir sistema ABC para produção",
@@ -40,7 +40,7 @@ public class TicketRepository : ITicketRepository
             Priority = TicketPriority.High,
             AssignedTo = "Rafael",
         });
-        Add(new Ticket
+        AddAsync(new Ticket
         {
             Title = "Melhorar o programa XYZ",
             Description = "Diversas melhorias no programa XYZ",
@@ -49,23 +49,31 @@ public class TicketRepository : ITicketRepository
             AssignedTo = "Joao"
         });
     }
-    public IEnumerable<Ticket> GetAllTickets() => _tickets;
-    public Ticket? GetById(int id) => _tickets.FirstOrDefault(ticket => ticket.Id == id);
+    public Task<IEnumerable<Ticket>> GetAllTicketsAsync()
+    {
+        return Task.FromResult(_tickets.AsEnumerable());
+    }
 
-    public void Add(Ticket ticket)
+    public Task<Ticket?> GetByIdAsync(int id)
+    {
+        return Task.FromResult(_tickets.FirstOrDefault(ticket => ticket.Id == id));
+    }
+
+    public Task AddAsync(Ticket ticket)
     {
         ticket.Id = _nextId++;
         ticket.CreatedAt = DateTime.Now;
         _tickets.Add(ticket);
+        return Task.CompletedTask;
     }
 
-    public bool Delete(Ticket ticket)
+    public Task<bool> DeleteAsync(Ticket ticket)
     {
-        return _tickets.Remove(ticket);
+        return Task.FromResult(_tickets.Remove(ticket));
     }
 
-    public void Update(Ticket ticket)
+    public Task UpdateAsync(Ticket ticket)
     {
-        //
+        return Task.CompletedTask;
     }
 }

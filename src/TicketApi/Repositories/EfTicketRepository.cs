@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 public class EfTicketRepository : ITicketRepository
 {
 
@@ -8,29 +10,34 @@ public class EfTicketRepository : ITicketRepository
         _context = context;
     }
 
-    public IEnumerable<Ticket> GetAllTickets() => _context.Tickets.ToList();
+    public async Task<IEnumerable<Ticket>> GetAllTicketsAsync()
+    {
+        return await _context.Tickets.ToListAsync();
+    }
 
-    public Ticket? GetById(int id) => _context.Tickets.FirstOrDefault(ticket => ticket.Id == id);
+    public async Task<Ticket?> GetByIdAsync(int id)
+    {
+        return await _context.Tickets.FirstOrDefaultAsync(ticket => ticket.Id == id);
+    }
 
-    public void Add(Ticket ticket)
+    public async Task AddAsync(Ticket ticket)
     {
         ticket.CreatedAt = DateTime.Now;
         _context.Tickets.Add(ticket);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public bool Delete(Ticket ticket)
+    public async Task<bool> DeleteAsync(Ticket ticket)
     {
         _context.Tickets.Remove(ticket);
-        var result = _context.SaveChanges();
-        return result > 0;
+        var result = await _context.SaveChangesAsync();
+        return (result > 0);
     }
 
-
-    public void Update(Ticket ticket)
+    public async Task UpdateAsync(Ticket ticket)
     {
         _context.Tickets.Update(ticket);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
 }

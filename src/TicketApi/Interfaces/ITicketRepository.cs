@@ -1,8 +1,8 @@
 public interface ITicketRepository
 {
-    IEnumerable<Ticket> GetAllTickets();
-    Ticket? GetById(int id);
-    void Add(Ticket ticket);
-    bool Delete(Ticket ticket);
-    void Update(Ticket ticket);
+    Task<IEnumerable<Ticket>> GetAllTicketsAsync();
+    Task<Ticket?> GetByIdAsync(int id);
+    Task AddAsync(Ticket ticket);
+    Task<bool> DeleteAsync(Ticket ticket);
+    Task UpdateAsync(Ticket ticket);
 }
