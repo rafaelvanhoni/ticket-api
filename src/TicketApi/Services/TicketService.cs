@@ -13,23 +13,39 @@ public class TicketService
         return _repository.GetAllTicketsAsync();
     }
 
-    public Task<Ticket?> GetTicketByIdAsync(int id)
+    public async Task<OperationResult<Ticket>> GetTicketByIdAsync(int id)
     {
-        return _repository.GetByIdAsync(id);
+        var ticket = await _repository.GetByIdAsync(id);
+
+        return new OperationResult<Ticket>
+        {
+            Status = ticket is null ? ResultStatus.NotFound : ResultStatus.Success,
+            Message = ticket is null ? "Ticket not found." : null,
+            Data = ticket
+        };
     }
 
-    public async Task<IEnumerable<Ticket>> GetTicketsAsync(TicketStatus? status = null, TicketPriority? priority = null)
+    public async Task<OperationResult<IEnumerable<Ticket>>> GetTicketsAsync(TicketStatus? status = null, TicketPriority? priority = null)
     {
-        var tickets = await GetBaseTicketsAsync();
+        var allTickets = await GetBaseTicketsAsync();
+        var tickets = Enumerable.Empty<Ticket>();
 
         if (status is null && priority is null)
-            return tickets.OrderBy(ticket => ticket.Id);
+        {
+            tickets = allTickets.OrderBy(ticket => ticket.Id);
+        }
+        else
+        {
+            tickets = allTickets
+                        .Where(ticket => (status is null || status == ticket.Status) &&
+                                        (priority is null || priority == ticket.Priority))
+                        .OrderBy(ticket => ticket.Id);
+        }
 
-        return tickets
-            .Where(ticket => (status is null || status == ticket.Status) &&
-                             (priority is null || priority == ticket.Priority))
-            .OrderBy(ticket => ticket.Id);
-
+        return new OperationResult<IEnumerable<Ticket>>
+        {
+            Data = tickets
+        };
     }
 
     public async Task<OperationResult<Ticket>> AddTicketAsync(ITicketValidatable dto)
@@ -57,27 +73,20 @@ public class TicketService
 
     public async Task<OperationResult<Ticket>> DeleteTicketAsync(int id)
     {
-        var ticket = await GetTicketByIdAsync(id);
+        var result = await GetTicketByIdAsync(id);
+        if (!result.IsSuccess)
+            return result;
 
-        if (ticket is null)
-        {
-            return new OperationResult<Ticket>()
-            {
-                Status = ResultStatus.NotFound,
-                Message = "Ticket not found.",
-            };
-        }
+        var ticket = result.Data!;
 
         if (ticket.Status == TicketStatus.Completed)
         {
-
             return new OperationResult<Ticket>()
             {
                 Status = ResultStatus.BusinessError,
                 Message = "Completed tickets cannot be deleted.",
                 Data = ticket,
             };
-
         }
 
         var isDeleted = await _repository.DeleteAsync(ticket);
@@ -98,16 +107,11 @@ public class TicketService
         if (!validation.IsSuccess)
             return validation;
 
-        var ticket = await GetTicketByIdAsync(id);
+        var result = await GetTicketByIdAsync(id);
+        if (!result.IsSuccess)
+            return result;
 
-        if (ticket is null)
-        {
-            return new OperationResult<Ticket>()
-            {
-                Status = ResultStatus.NotFound,
-                Message = "Ticket not found."
-            };
-        }
+        var ticket = result.Data!;
 
         ticket.Title = dto.Title;
         ticket.Description = dto.Description;

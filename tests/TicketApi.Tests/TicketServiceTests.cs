@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Moq;
 
 public class TicketServiceTests
@@ -155,9 +154,11 @@ public class TicketServiceTests
         Assert.NotNull(created.Data);
 
         // When
-        var ticket = await service.GetTicketByIdAsync(created.Data!.Id);
+        var result = await service.GetTicketByIdAsync(created.Data!.Id);
+        var ticket = result.Data;
 
         // Then
+        Assert.True(result.IsSuccess);
         Assert.NotNull(ticket);
         Assert.Equal(dto.Title, ticket.Title);
     }
@@ -169,10 +170,12 @@ public class TicketServiceTests
         var service = CreateService();
 
         // When
-        var ticket = await service.GetTicketByIdAsync(999);
+        var result = await service.GetTicketByIdAsync(999);
 
         // Then
-        Assert.Null(ticket);
+        Assert.False(result.IsSuccess);
+        Assert.Null(result.Data);
+        Assert.Equal("Ticket not found.", result.Message);
     }
 
     [Fact]
@@ -203,9 +206,12 @@ public class TicketServiceTests
         Assert.NotNull(createdClosed.Data);
 
         // When
-        var tickets = await service.GetTicketsAsync(status: TicketStatus.Open);
+        var result = await service.GetTicketsAsync(status: TicketStatus.Open);
+        Assert.NotNull(result.Data);
+        var tickets = result.Data!;
 
         // Then
+        Assert.True(result.IsSuccess);
         Assert.NotEmpty(tickets);
         Assert.All(tickets, ticket => Assert.Equal(TicketStatus.Open, ticket.Status));
     }
@@ -345,9 +351,11 @@ public class TicketServiceTests
         var service = new TicketService(repositoryMock.Object);
 
         // When
-        var ticket = await service.GetTicketByIdAsync(2);
+        var result = await service.GetTicketByIdAsync(2);
+        var ticket = result.Data;
 
         // Then
+        Assert.True(result.IsSuccess);
         Assert.NotNull(ticket);
         Assert.Equal(2, ticket.Id);
         Assert.Equal("test 2", ticket.Title);

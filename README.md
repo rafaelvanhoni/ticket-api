@@ -19,6 +19,8 @@ The main goal of this project is to practice modern backend concepts and build a
 - Entity Framework Core
 - Database migrations
 - Minimal APIs
+- Async/Await
+- Standardized API responses
 
 Additionally, the project applies the **Result Pattern** using `OperationResult<T>`, ensuring standardized and predictable API responses.
 
@@ -43,6 +45,8 @@ Current features:
 - Persistent data storage using SQLite
 - Database migrations with Entity Framework Core
 - Validate ticket status and priority values
+- Async repository and service operations
+- Standardized HTTP responses using OperationResult<T>
 
 ---
 
@@ -72,7 +76,10 @@ TicketApi/
 │       ├── Models/        # Domain entities
 │       ├── Repositories/  # Data access layer (EF + in-memory)
 │       ├── Services/      # Business logic and rules
-│       ├── Shared/        # Shared utilities (OperationResult)
+│       ├── Extensions/    # Extension methods
+│       ├── Response/      # Standardized API response models
+│       ├── Shared/        # Shared utilities and result patterns
+│       ├── Swagger/       # Swagger schema customization
 │       ├── Properties/    # App settings (launchSettings, etc)
 │       └── Program.cs     # API endpoints (Minimal API)
 │
@@ -88,15 +95,17 @@ TicketApi/
 
 ## 🧠 Design Decisions
 
-- **Minimal API** approach for simplicity and focus on core concepts  
-- **Service layer** as the central point for business rules (not just data flow)  
-- **Repository layer** to abstract data access  
-- **Entity Framework Core** for persistence  
-- **SQLite** for lightweight local database  
-- **DTOs** to separate API contracts from domain entities  
-- **Enums** used for `Status` and `Priority`  
-- **Result Pattern (`OperationResult<T>`)** for consistent API responses  
-- **Dual repository strategy (in-memory + EF Core)** for learning, testing, and flexibility  
+- **Minimal API** approach for simplicity and focus on core concepts
+- **Service layer** as the central point for business rules (not just data flow)
+- **Repository layer** to abstract data access
+- **Entity Framework Core** for persistence
+- **SQLite** for lightweight local database
+- **DTOs** to separate API contracts from domain entities
+- **Enums** used for `Status` and `Priority`
+- **Result Pattern (`OperationResult<T>`)** for consistent API responses
+- **Extension Methods** for centralized HTTP response handling
+- **Async/Await** across repositories and services
+- **Dual repository strategy (in-memory + EF Core)** for learning, testing, and flexibility
 
 This design makes it easier to evolve the project later, including replacing the persistence layer if needed.
 
@@ -301,7 +310,9 @@ This project went through a full evolution process:
 - Introduction of repository abstraction with `ITicketRepository`  
 - Implementation of dual repository strategy (in-memory + EF Core)  
 - Migration from in-memory storage to SQLite persistence  
-- Introduction of Entity Framework Core and database migrations  
+- Introduction of Entity Framework Core and database migrations
+- Refactoring repositories and services to async/await
+- Standardization of API responses using extension methods  
 
 ---
 
@@ -316,14 +327,14 @@ This project went through a full evolution process:
 - [x] Replace in-memory storage with SQLite database
 - [x] Introduce Entity Framework Core and migrations
 - [x] Improve enum handling in query parameters  
-- [x] Improve Swagger documentation for enum values  
+- [x] Improve Swagger documentation for enum values
+- [x] Introduce async/await in repositories and services
+- [x] Improve API response standardization  
 
 ### Next steps
 
-- [ ] Add logging and basic observability  
-- [ ] Introduce async/await in repositories and services  
-- [ ] Improve API response standardization  
-- [ ] Add authentication and authorization  
+- [ ] Add logging and basic observability
+- [ ] Add integration tests
 
 ---
 

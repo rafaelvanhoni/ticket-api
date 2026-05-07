@@ -10,8 +10,6 @@ builder.Services.AddDbContext<TicketDbContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddSingleton<TicketService>();
-//builder.Services.AddSingleton<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<ITicketRepository, EfTicketRepository>();
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -33,8 +31,8 @@ app.UseHttpsRedirection();
 
 app.MapGet("/tickets/{id}", async (int id, TicketService service) =>
 {
-    var ticket = await service.GetTicketByIdAsync(id);
-    return ticket is null ? Results.NotFound() : Results.Ok(ticket);
+    var result = await service.GetTicketByIdAsync(id);
+    return result.ToHttpResult();
 })
 .WithName("GetTicketById")
 .WithOpenApi();
@@ -50,7 +48,11 @@ app.MapGet("/tickets", async (string? status, string? priority, TicketService se
         if (!Enum.TryParse<TicketStatus>(status, true, out var statusValue) ||
             !Enum.IsDefined(typeof(TicketStatus), statusValue))
         {
-            return Results.BadRequest("Invalid ticket status.");
+            return new OperationResult<IEnumerable<Ticket>>()
+            {
+                Status = ResultStatus.ValidationError,
+                Message = "Invalid ticket status.",
+            }.ToHttpResult();
         }
 
         parsedStatus = statusValue;
@@ -61,14 +63,18 @@ app.MapGet("/tickets", async (string? status, string? priority, TicketService se
         if (!Enum.TryParse<TicketPriority>(priority, true, out var priorityValue) ||
             !Enum.IsDefined(typeof(TicketPriority), priorityValue))
         {
-            return Results.BadRequest("Invalid ticket priority");
+            return new OperationResult<IEnumerable<Ticket>>()
+            {
+                Status = ResultStatus.ValidationError,
+                Message = "Invalid ticket priority.",
+            }.ToHttpResult();
         }
 
         parsedPriority = priorityValue;
     }
 
-
-    return Results.Ok(await service.GetTicketsAsync(parsedStatus, parsedPriority));
+    var result = await service.GetTicketsAsync(parsedStatus, parsedPriority);
+    return result.ToHttpResult();
 })
 .WithName("GetTickets")
 .WithOpenApi();
@@ -76,15 +82,7 @@ app.MapGet("/tickets", async (string? status, string? priority, TicketService se
 app.MapPost("/tickets", async (CreateTicketDto dto, TicketService service) =>
 {
     var result = await service.AddTicketAsync(dto);
-
-    return result.Status switch
-    {
-        ResultStatus.Success => Results.Created($"/tickets/{result.Data!.Id}", result.Data),
-        ResultStatus.NotFound => Results.NotFound(result.Message),
-        ResultStatus.ValidationError => Results.BadRequest(result.Message),
-        ResultStatus.BusinessError => Results.BadRequest(result.Message),
-        _ => Results.BadRequest(result.Message),
-    };
+    return result.ToHttpResult();
 })
 .WithName("CreateTicket")
 .WithOpenApi();
@@ -92,15 +90,7 @@ app.MapPost("/tickets", async (CreateTicketDto dto, TicketService service) =>
 app.MapPut("/tickets/{id}", async (int id, UpdateTicketDto dto, TicketService service) =>
 {
     var result = await service.UpdateTicketAsync(id, dto);
-
-    return result.Status switch
-    {
-        ResultStatus.Success => Results.Ok(result.Data),
-        ResultStatus.NotFound => Results.NotFound(result.Message),
-        ResultStatus.ValidationError => Results.BadRequest(result.Message),
-        ResultStatus.BusinessError => Results.BadRequest(result.Message),
-        _ => Results.BadRequest(result.Message),
-    };
+    return result.ToHttpResult();
 })
 .WithName("UpdateTicket")
 .WithOpenApi();
@@ -108,15 +98,7 @@ app.MapPut("/tickets/{id}", async (int id, UpdateTicketDto dto, TicketService se
 app.MapDelete("/tickets/{id}", async (int id, TicketService service) =>
 {
     var result = await service.DeleteTicketAsync(id);
-
-    return result.Status switch
-    {
-        ResultStatus.Success => Results.Ok(result.Data),
-        ResultStatus.NotFound => Results.NotFound(result.Message),
-        ResultStatus.ValidationError => Results.BadRequest(result.Message),
-        ResultStatus.BusinessError => Results.BadRequest(result.Message),
-        _ => Results.BadRequest(result.Message),
-    };
+    return result.ToHttpResult();
 })
 .WithName("DeleteTicket")
 .WithOpenApi();
