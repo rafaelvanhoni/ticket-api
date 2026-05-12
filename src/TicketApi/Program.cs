@@ -104,3 +104,5 @@ app.MapDelete("/tickets/{id}", async (int id, TicketService service) =>
 .WithOpenApi();
 
 app.Run();
+
+public partial class Program { }

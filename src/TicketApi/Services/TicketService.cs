@@ -2,10 +2,13 @@ public class TicketService
 {
 
     private readonly ITicketRepository _repository;
+    private readonly ILogger<TicketService> _logger;
 
-    public TicketService(ITicketRepository repository)
+    public TicketService(ITicketRepository repository,
+                         ILogger<TicketService> logger)
     {
         _repository = repository;
+        _logger = logger;
     }
 
     private Task<IEnumerable<Ticket>> GetBaseTicketsAsync()
@@ -53,7 +56,12 @@ public class TicketService
 
         var validation = ValidateTicket(dto);
         if (!validation.IsSuccess)
+        {
+            _logger.LogWarning("Validation failed. Status: {Status}. Message: {Message}.",
+                                validation.Status,
+                                validation.Message);
             return validation;
+        }
 
         var ticket = new Ticket()
         {
@@ -64,9 +72,14 @@ public class TicketService
             AssignedTo = dto.AssignedTo
         };
 
-        validation.Data = ticket;
-
         await _repository.AddAsync(ticket);
+
+        validation.Data = ticket;
+        validation.Status = ResultStatus.Created;
+
+        _logger.LogInformation("Ticket created successfully. TicketId: {TicketId}. Title: {Title}.",
+                                ticket.Id,
+                                ticket.Title);
 
         return validation;
     }
@@ -75,28 +88,49 @@ public class TicketService
     {
         var result = await GetTicketByIdAsync(id);
         if (!result.IsSuccess)
+        {
+            _logger.LogWarning("Ticket {TicketId} not found. Status: {Status}. Message: {Message}.",
+                                 id,
+                                 result.Status,
+                                 result.Message);
             return result;
+        }
 
         var ticket = result.Data!;
 
         if (ticket.Status == TicketStatus.Completed)
         {
-            return new OperationResult<Ticket>()
+            var businessError = new OperationResult<Ticket>()
             {
                 Status = ResultStatus.BusinessError,
                 Message = "Completed tickets cannot be deleted.",
                 Data = ticket,
             };
+
+            _logger.LogWarning("Delete denied. TicketId: {TicketId}, Status: {Status}. Message: {Message}.",
+                                 ticket.Id,
+                                 businessError.Status,
+                                 businessError.Message);
+            return businessError;
         }
 
         var isDeleted = await _repository.DeleteAsync(ticket);
-
-        return new OperationResult<Ticket>()
+        var finalResult = new OperationResult<Ticket>()
         {
             Status = isDeleted ? ResultStatus.Success : ResultStatus.ValidationError,
             Message = isDeleted ? null : "Ticket could not be deleted.",
             Data = ticket
         };
+
+        if (finalResult.IsSuccess)
+            _logger.LogInformation("Ticket deleted successfully. TicketId: {TicketId}.",
+                                   ticket.Id);
+        else
+            _logger.LogWarning("Validation failed. Status: {Status}. Message: {Message}.",
+                                 finalResult.Status,
+                                 finalResult.Message);
+
+        return finalResult;
 
     }
 
@@ -105,11 +139,23 @@ public class TicketService
 
         var validation = ValidateTicket(dto);
         if (!validation.IsSuccess)
+        {
+            _logger.LogWarning("Validation failed. Status: {Status}. Message: {Message}.",
+                                 validation.Status,
+                                 validation.Message);
             return validation;
+        }
+
 
         var result = await GetTicketByIdAsync(id);
         if (!result.IsSuccess)
+        {
+            _logger.LogWarning("Ticket {TicketId} not found. Status: {Status}. Message: {Message}.",
+                                 id,
+                                 result.Status,
+                                 result.Message);
             return result;
+        }
 
         var ticket = result.Data!;
 
@@ -123,6 +169,10 @@ public class TicketService
 
         validation.Data = ticket;
         await _repository.UpdateAsync(ticket);
+
+        _logger.LogInformation("Ticket updated successfully. TicketId: {TicketId}. Title: {Title}.",
+                                ticket.Id,
+                                ticket.Title);
 
         return validation;
     }

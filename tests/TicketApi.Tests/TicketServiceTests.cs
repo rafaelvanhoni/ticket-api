@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 public class TicketServiceTests
@@ -5,12 +6,12 @@ public class TicketServiceTests
     private TicketService CreateService()
     {
         var repository = new FakeTicketRepository();
-        return new TicketService(repository);
+        return new TicketService(repository, NullLogger<TicketService>.Instance);
     }
 
     private TicketService CreateService(ITicketRepository repository)
     {
-        return new TicketService(repository);
+        return new TicketService(repository, NullLogger<TicketService>.Instance);
     }
 
     private CreateTicketDto CreateValidCreateTicketDto()
@@ -348,7 +349,7 @@ public class TicketServiceTests
             .Setup(repository => repository.GetByIdAsync(2))
             .ReturnsAsync(expectedTicket);
 
-        var service = new TicketService(repositoryMock.Object);
+        var service = CreateService(repositoryMock.Object);
 
         // When
         var result = await service.GetTicketByIdAsync(2);
@@ -371,7 +372,7 @@ public class TicketServiceTests
         repositoryMock
             .Setup(repository => repository.GetByIdAsync(1))
             .ReturnsAsync(expectedTicket);
-        var service = new TicketService(repositoryMock.Object);
+        var service = CreateService(repositoryMock.Object);
 
         // When
         await service.DeleteTicketAsync(1);

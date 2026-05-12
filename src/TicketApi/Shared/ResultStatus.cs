@@ -3,5 +3,6 @@ public enum ResultStatus
     Success,
     NotFound,
     ValidationError,
-    BusinessError
+    BusinessError,
+    Created
 }

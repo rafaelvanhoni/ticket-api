@@ -1,6 +1,6 @@
 # 🎫 Ticket API
 
-> 🚧 **Status:** In Development
+> ✅ **Status:** Version 1.0.0 Released
 
 A simple REST API for managing tickets, built with **ASP.NET Core Minimal APIs** and **Entity Framework Core (SQLite)**.
 
@@ -28,6 +28,8 @@ The project initially used in-memory storage to focus on architecture and API de
 
 It has since evolved to use **Entity Framework Core with SQLite**, enabling persistent data storage and database versioning through migrations.
 
+This project was built as a hands-on learning journey to practice backend engineering concepts progressively, focusing on architecture, testing, REST API design, and clean code practices.
+
 ---
 
 ## 🚀 Features
@@ -47,19 +49,40 @@ Current features:
 - Validate ticket status and priority values
 - Async repository and service operations
 - Standardized HTTP responses using OperationResult<T>
+- Structured logging with ILogger<T>
+- Integration tests using WebApplicationFactory
+- Isolated SQLite in-memory database for integration testing
+- RESTful `201 Created` responses with `Location` header
 
 ---
 
 ## 🧪 Tests
 
-This project includes unit tests using **xUnit**, covering:
+This project includes both **unit tests** and **integration tests** using **xUnit**.
 
-- Ticket creation (success and validation)
-- Ticket update (success and validation)
-- Ticket deletion (business rules)
-- Ticket queries and filtering
-- Enum validation for status and priority
+### Unit tests cover:
+
+- Ticket creation validation
+- Ticket updates
+- Business rules
+- Ticket filtering
+- Enum validation
 - Repository interaction verification using Moq
+
+### Integration tests cover:
+
+- Real HTTP requests against API endpoints
+- Ticket persistence and retrieval
+- Validation responses
+- Update and delete flows
+- Standardized API responses
+- SQLite in-memory database isolation
+
+Integration tests use:
+
+- `WebApplicationFactory`
+- `Microsoft.AspNetCore.Mvc.Testing`
+- SQLite in-memory database
 
 ---
 
@@ -85,6 +108,11 @@ TicketApi/
 │
 ├── tests/
 │   └── TicketApi.Tests/
+│       ├── Integration/   # Integration tests and API test infrastructure
+│       │   ├── TicketApiFactory.cs
+│       │   └── TicketIntegrationTests.cs
+│       │
+│       └── TicketServiceTests.cs # Unit tests for business logic
 │
 ├── .gitignore
 ├── README.md
@@ -122,6 +150,9 @@ This design makes it easier to evolve the project later, including replacing the
 - Dependency Injection
 - xUnit
 - Moq
+- Microsoft.AspNetCore.Mvc.Testing
+- SQLite In-Memory
+- ILogger<T>
 
 ---
 
@@ -313,6 +344,11 @@ This project went through a full evolution process:
 - Introduction of Entity Framework Core and database migrations
 - Refactoring repositories and services to async/await
 - Standardization of API responses using extension methods  
+- Added integration tests using WebApplicationFactory
+- Added isolated SQLite in-memory database for integration tests
+- Introduced structured logging with ILogger<T>
+- Improved RESTful semantics with 201 Created responses
+- Added Created result status support to OperationResult<T>
 
 ---
 
@@ -330,11 +366,8 @@ This project went through a full evolution process:
 - [x] Improve Swagger documentation for enum values
 - [x] Introduce async/await in repositories and services
 - [x] Improve API response standardization  
-
-### Next steps
-
-- [ ] Add logging and basic observability
-- [ ] Add integration tests
+- [x] Add logging and basic observability
+- [x] Add integration tests
 
 ---
 

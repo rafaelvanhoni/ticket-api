@@ -11,6 +11,7 @@ public static class OperationResultsExtensions
 
         return result.Status switch
         {
+            ResultStatus.Created => Results.Created($"/tickets/", response),
             ResultStatus.Success => Results.Ok(response),
             ResultStatus.NotFound => Results.NotFound(response),
             ResultStatus.ValidationError => Results.BadRequest(response),
